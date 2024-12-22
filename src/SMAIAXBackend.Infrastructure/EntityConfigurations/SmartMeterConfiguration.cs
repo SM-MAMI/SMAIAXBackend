@@ -25,13 +25,13 @@ public class SmartMeterConfiguration : IEntityTypeConfiguration<SmartMeter>
                 v => v.Id,
                 v => new ConnectorSerialNumber(v))
             .IsRequired();
-        
+
         builder.Property(sm => sm.Name).IsRequired(false);
 
         builder.HasMany(sm => sm.Metadata)
             .WithOne(m => m.SmartMeter)
             .HasForeignKey(m => m.SmartMeterId).IsRequired();
-        
+
         builder.Property(sm => sm.PublicKey).IsRequired(false);
     }
 }

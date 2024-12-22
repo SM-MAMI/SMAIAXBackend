@@ -12,7 +12,7 @@ public static class OrderSmartMeterConnectorEndpoint
         IKeyGenerationService keyGenerationService)
     {
         var connectorSerialNumber = await orderService.OrderSmartMeterConnectorAsync();
-        
+
         return TypedResults.Ok(connectorSerialNumber.Id);
     }
 }

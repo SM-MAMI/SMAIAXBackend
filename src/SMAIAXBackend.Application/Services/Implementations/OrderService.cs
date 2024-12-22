@@ -7,7 +7,7 @@ using SMAIAXBackend.Domain.Repositories.Transactions;
 namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class OrderService(
-    ISmartMeterRepository smartMeterRepository, 
+    ISmartMeterRepository smartMeterRepository,
     IMqttBrokerRepository mqttBrokerRepository,
     IVaultRepository vaultRepository,
     IKeyGenerationService keyGenerationService,
@@ -17,11 +17,11 @@ public class OrderService(
     {
         var smartMeterId = smartMeterRepository.NextIdentity();
         var connectorSerialNumber = new ConnectorSerialNumber(Guid.NewGuid());
-        
+
         //We would now trigger a process of burning the private key into the fuse of the connector for the smart meter
         //This however was out of scope for the project, therefore the private key is not used at this place
         var (publicKey, privateKey) = keyGenerationService.GenerateKeys();
-        
+
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
             var smartMeter = SmartMeter.Create(smartMeterId, connectorSerialNumber, publicKey);

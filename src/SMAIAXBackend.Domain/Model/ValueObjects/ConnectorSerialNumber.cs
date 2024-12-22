@@ -1,6 +1,6 @@
 ﻿namespace SMAIAXBackend.Domain.Model.ValueObjects;
 
-public class ConnectorSerialNumber(Guid id) : ValueObject 
+public class ConnectorSerialNumber(Guid id) : ValueObject
 {
     public Guid Id { get; } = id;
 
