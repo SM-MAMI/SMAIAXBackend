@@ -6,25 +6,24 @@ using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 namespace SMAIAXBackend.Application.DTOs;
 
-public class MetadataUpdateDto(Guid id, DateTime validFrom, LocationDto location, int householdSize)
+public class MetadataUpdateDto(Guid id, DateTime validFrom, LocationDto? location, int? householdSize)
 {
-    [Required]
-    public Guid Id { get; set; } = id;
+    [Required] public Guid Id { get; set; } = id;
 
-    [Required]
-    public DateTime ValidFrom { get; set; } = validFrom;
+    [Required] public DateTime ValidFrom { get; set; } = validFrom;
 
-    [Required]
-    public LocationDto Location { get; set; } = location;
+    public LocationDto? Location { get; set; } = location;
 
-    [Required]
-    public int HouseholdSize { get; set; } = householdSize;
+    public int? HouseholdSize { get; set; } = householdSize;
 
     public static Metadata FromMetadataDto(MetadataUpdateDto metadataUpdateDto, SmartMeterId smartMeterId)
     {
-        return Metadata.Create(new MetadataId(metadataUpdateDto.Id), metadataUpdateDto.ValidFrom,
-            new Location(metadataUpdateDto.Location.StreetName, metadataUpdateDto.Location.City,
+        var location = metadataUpdateDto.Location != null
+            ? new Location(metadataUpdateDto.Location.StreetName, metadataUpdateDto.Location.City,
                 metadataUpdateDto.Location.State, metadataUpdateDto.Location.Country,
-                metadataUpdateDto.Location.Continent), metadataUpdateDto.HouseholdSize, smartMeterId);
+                metadataUpdateDto.Location.Continent)
+            : null;
+        return Metadata.Create(new MetadataId(metadataUpdateDto.Id), metadataUpdateDto.ValidFrom, location,
+            metadataUpdateDto.HouseholdSize, smartMeterId);
     }
 }

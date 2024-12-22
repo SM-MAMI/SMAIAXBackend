@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SMAIAXBackend.Infrastructure.DbContexts;
@@ -11,9 +12,11 @@ using SMAIAXBackend.Infrastructure.DbContexts;
 namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241219225620_RefactorMetadataNullableHouseholdsize")]
+    partial class RefactorMetadataNullableHouseholdsize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,7 +112,7 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("integer")
                         .HasColumnName("householdSize");
 
-                    b.Property<Guid?>("SmartMeterId")
+                    b.Property<Guid>("SmartMeterId")
                         .HasColumnType("uuid")
                         .HasColumnName("smartMeterId");
 
@@ -197,17 +200,10 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("ConnectorSerialNumber")
-                        .HasColumnType("uuid")
-                        .HasColumnName("connectorSerialNumber");
-
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
-
-                    b.Property<string>("PublicKey")
-                        .HasColumnType("text")
-                        .HasColumnName("publicKey");
 
                     b.HasKey("Id")
                         .HasName("pK_SmartMeter");
@@ -220,6 +216,8 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                     b.HasOne("SMAIAXBackend.Domain.Model.Entities.SmartMeter", "SmartMeter")
                         .WithMany("Metadata")
                         .HasForeignKey("SmartMeterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fK_Metadata_SmartMeter_smartMeterId");
 
                     b.OwnsOne("SMAIAXBackend.Domain.Model.ValueObjects.Location", "Location", b1 =>
