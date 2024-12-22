@@ -30,7 +30,7 @@ public class SmartMeterConfiguration : IEntityTypeConfiguration<SmartMeter>
 
         builder.HasMany(sm => sm.Metadata)
             .WithOne(m => m.SmartMeter)
-            .HasForeignKey(m => m.SmartMeterId).IsRequired(false);
+            .HasForeignKey(m => m.SmartMeterId).IsRequired();
         
         builder.Property(sm => sm.PublicKey).IsRequired(false);
     }
