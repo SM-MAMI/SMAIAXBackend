@@ -161,7 +161,7 @@ public class TestBase
 
         // Jane Doe
         var smartMeter3Id = new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d49"));
-        var smartMeter3Metadata = Metadata.Create(new MetadataId(Guid.Parse("1c8c8313-6fc4-4ebd-9ca8-8a1267441e06")),
+        var smartMeter3Metadata = Metadata.Create(new MetadataId(Guid.Parse("1c8c8313-6fc4-4ebd-9ca8-8a1267441e07")),
             DateTime.UtcNow, new Location("Some Streetname", "Some city", "Some state", "Some county", Continent.Asia),
             4, smartMeter3Id);
         var smartMeter3 = SmartMeter.Create(smartMeter3Id,

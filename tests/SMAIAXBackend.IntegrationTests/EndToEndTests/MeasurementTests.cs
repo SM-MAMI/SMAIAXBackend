@@ -42,8 +42,8 @@ public class MeasurementTests : TestBase
     {
         // Given
         var smartMeterId = Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd");
-        var startAt = DateTime.UtcNow.AddDays(-2).ToString("yyyy-MM-ddTHH:mm:ssZ");
-        var endAt = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ssZ");
+        var startAt = DateTime.UtcNow.AddDays(-5).ToString("yyyy-MM-ddTHH:mm:ssZ");
+        var endAt = DateTime.UtcNow.AddDays(-4).ToString("yyyy-MM-ddTHH:mm:ssZ");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
         // When
