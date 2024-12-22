@@ -23,7 +23,8 @@ public class PolicyTests : TestBase
     {
         // Given
         var smartMeterId = Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39");
-        var policyCreateDto = new PolicyCreateDto("policy1", MeasurementResolution.Minute, LocationResolution.City, 100, smartMeterId);
+        var policyCreateDto = new PolicyCreateDto("policy1", MeasurementResolution.Minute, LocationResolution.City, 100,
+            smartMeterId);
 
         var httpContent = new StringContent(JsonConvert.SerializeObject(policyCreateDto), Encoding.UTF8,
             "application/json");
@@ -58,7 +59,8 @@ public class PolicyTests : TestBase
     {
         // Given
         var smartMeterId = Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39");
-        var policyCreateDto = new PolicyCreateDto("policy1", MeasurementResolution.Minute, LocationResolution.City, 100, smartMeterId);
+        var policyCreateDto = new PolicyCreateDto("policy1", MeasurementResolution.Minute, LocationResolution.City, 100,
+            smartMeterId);
 
         var httpContent = new StringContent(JsonConvert.SerializeObject(policyCreateDto), Encoding.UTF8,
             "application/json");
@@ -76,8 +78,10 @@ public class PolicyTests : TestBase
     {
         // Given
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
-        var policy1 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour, LocationResolution.City, 100, smartMeterId);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Hour, LocationResolution.City, 100, smartMeterId);
+        var policy1 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour,
+            LocationResolution.City, 100, smartMeterId);
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Hour,
+            LocationResolution.City, 100, smartMeterId);
         await _tenant1DbContext.Policies.AddRangeAsync(policy1, policy2);
         await _tenant1DbContext.SaveChangesAsync();
 
@@ -122,8 +126,10 @@ public class PolicyTests : TestBase
     {
         // Given
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
-        var policy1 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour, LocationResolution.City, 100, smartMeterId);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Hour, LocationResolution.City, 100, smartMeterId);
+        var policy1 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour,
+            LocationResolution.City, 100, smartMeterId);
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Hour,
+            LocationResolution.City, 100, smartMeterId);
         await _tenant1DbContext.Policies.AddRangeAsync(policy1, policy2);
         await _tenant1DbContext.SaveChangesAsync();
 
@@ -162,5 +168,71 @@ public class PolicyTests : TestBase
         var policies = JsonConvert.DeserializeObject<List<PolicyDto>>(responseContent);
         Assert.That(policies, Is.Not.Null);
         Assert.That(policies, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenPoliciesExist_WhenSearchPoliciesWithMaxPrice_ThenReturnFilteredPolicies()
+    {
+        // Given
+        const int maxPrice = 500;
+        const int policyCountExpected = 1;
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+        // When
+        var response = await _httpClient.GetAsync($"{BaseUrl}/search?maxPrice={maxPrice}");
+
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Assert.That(responseContent, Is.Not.Null);
+
+        var policies = JsonConvert.DeserializeObject<List<PolicyDto>>(responseContent);
+        Assert.That(policies, Is.Not.Null);
+        Assert.That(policies, Has.Count.EqualTo(policyCountExpected));
+    }
+
+    [Test]
+    public async Task GivenPoliciesExist_WhenSearchPoliciesWithMeasurementResolution_ThenReturnFilteredPolicies()
+    {
+        // Given
+        const string measurementResolution = "Minute";
+        const int policyCountExpected = 1;
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+        // When
+        var response = await _httpClient.GetAsync($"{BaseUrl}/search?measurementResolution={measurementResolution}");
+
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Assert.That(responseContent, Is.Not.Null);
+
+        var policies = JsonConvert.DeserializeObject<List<PolicyDto>>(responseContent);
+        Assert.That(policies, Is.Not.Null);
+        Assert.That(policies, Has.Count.EqualTo(policyCountExpected));
+    }
+
+    [Test]
+    public async Task GivenPoliciesExist_WhenSearchPolicies_ThenReturnEmptyList()
+    {
+        // Given
+        const int maxPrice = 10;
+        const int policyCountExpected = 0;
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+
+        // When
+        var response = await _httpClient.GetAsync($"{BaseUrl}/search?maxPrice={maxPrice}");
+
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Assert.That(responseContent, Is.Not.Null);
+
+        var policies = JsonConvert.DeserializeObject<List<PolicyDto>>(responseContent);
+        Assert.That(policies, Is.Not.Null);
+        Assert.That(policies, Has.Count.EqualTo(policyCountExpected));
     }
 }
