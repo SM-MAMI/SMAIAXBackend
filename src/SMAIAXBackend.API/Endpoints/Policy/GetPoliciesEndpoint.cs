@@ -10,22 +10,15 @@ namespace SMAIAXBackend.API.Endpoints.Policy;
 
 public static class GetPoliciesEndpoint
 {
-    public static async Task<Results<Ok<List<PolicyDto>>, NotFound>> Handle(
+    public static async Task<Ok<List<PolicyDto>>> Handle(
         IPolicyListService policyListService,
-        [FromQuery] Guid? smartMeterId,
-        [FromQuery] decimal? maxPrice,
-        [FromQuery] MeasurementResolution? measurementResolution)
+        [FromQuery] Guid? smartMeterId)
     {
         List<PolicyDto> policies;
 
         if (smartMeterId.HasValue)
         {
             policies = await policyListService.GetPoliciesBySmartMeterIdAsync(new SmartMeterId(smartMeterId.Value));
-        }
-        else if (maxPrice.HasValue || measurementResolution.HasValue)
-        {
-            // In this case a user is searching for policies of other users based on filters
-            policies = await policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution);
         }
         else
         {
