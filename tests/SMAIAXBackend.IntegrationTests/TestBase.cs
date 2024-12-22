@@ -149,20 +149,24 @@ public class TestBase
             DateTime.UtcNow, new Location("Some Streetname", "Some city", "Some state", "Some county", Continent.Asia),
             4, smartMeter2Id);
         var smartMeter1 = SmartMeter.Create(new SmartMeterId(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd")),
-            "Smart Meter 1", []);
-        var smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [smartMeter2Metadata]);
+            "Smart Meter 1", [], new ConnectorSerialNumber(Guid.NewGuid()),
+            "MIICCgKCAgEAncWYOkd7VTOFoE4QJuvdEAP1x+PJVM9bRf+Bs9t1V3NDn5tNUplP0Y6fbamWTAh3Irji5KwxNCSrDVtX6IJ7qDRRN6TG3kbBLngyWQsajO7laLYshFE86jseuEGx3hu9bbN3Q1gLsVb2mkJukw6v0LugiSK++3wFisfVTOAe59XxE0geMTyghnc2jak/LEI5nNoe85yinVAzCQiHJqxqjA93IWwKT7MMOUoVHXOnPd84TeXIuPKNHhfG5J/K545z7cyzLfEfyCvCs6cxsjpFNilrWqxmh4J9ukcooVv7p3s7DSJNWsEbaW6XC4Q+wvy6aHmIVE7llgyV216+qWr8EMCMcHDTnaXr1/PcLFfqOelCgqAU2aIFIZvrAl2GZruFHso/VbryMq9iPQQK5nfJJNisUCQRtUIehTajfGMfBiI62lgqV8Qa/J2pksYppLzX9vQlEa3IsMOCkIwkK/sHHkOx+dfyVoASYnhMDHfQ35aGpCZpaM9XdVfcE0Aip5plpgxDMefg70Ur1TfGJFqD5ix04ehIewg2oh6yu/nU5jAMVm9CsKqUcmpmQkdp2pEb4s6t4A2aIgPMpZpzJmp4WDEsr0v+Bo+kFRDNnWK9dfxav6duE3fLL/IJiX6YfmbRsC0mC+7Mmptg1reeI7xgw4eWfDQluKx7z+2uHQVcgqECAwEAAQ==");
+        var smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [smartMeter2Metadata],
+            new ConnectorSerialNumber(Guid.NewGuid()),
+            "MIICCgKCAgEAncWYOkd7VTOFoE4QJuvdEAP1x+PJVM9bRf+Bs9t1V3NDn5tNUplP0Y6fbamWTAh3Irji5KwxNCSrDVtX6IJ7qDRRN6TG3kbBLngyWQsajO7laLYshFE86jseuEGx3hu9bbN3Q1gLsVb2mkJukw6v0LugiSK++3wFisfVTOAe59XxE0geMTyghnc2jak/LEI5nNoe85yinVAzCQiHJqxqjA93IWwKT7MMOUoVHXOnPd84TeXIuPKNHhfG5J/K545z7cyzLfEfyCvCs6cxsjpFNilrWqxmh4J9ukcooVv7p3s7DSJNWsEbaW6XC4Q+wvy6aHmIVE7llgyV216+qWr8EMCMcHDTnaXr1/PcLFfqOelCgqAU2aIFIZvrAl2GZruFHso/VbryMq9iPQQK5nfJJNisUCQRtUIehTajfGMfBiI62lgqV8Qa/J2pksYppLzX9vQlEa3IsMOCkIwkK/sHHkOx+dfyVoASYnhMDHfQ35aGpCZpaM9XdVfcE0Aip5plpgxDMefg70Ur1TfGJFqD5ix04ehIewg2oh6yu/nU5jAMVm9CsKqUcmpmQkdp2pEb4s6t4A2aIgPMpZpzJmp4WDEsr0v+Bo+kFRDNnWK9dfxav6duE3fLL/IJiX6YfmbRsC0mC+7Mmptg1reeI7xgw4eWfDQluKx7z+2uHQVcgqECAwEAAQ==");
         var policyRequest = PolicyRequest.Create(
             new PolicyRequestId(Guid.Parse("58af578c-9975-4633-8dfe-ff8b70b83661")),
             false, new PolicyFilter(MeasurementResolution.Hour, 1, 10, [],
                 LocationResolution.State, 500));
 
         // Jane Doe
-        var smartMeter3Id = new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"));
+        var smartMeter3Id = new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d49"));
         var smartMeter3Metadata = Metadata.Create(new MetadataId(Guid.Parse("1c8c8313-6fc4-4ebd-9ca8-8a1267441e06")),
             DateTime.UtcNow, new Location("Some Streetname", "Some city", "Some state", "Some county", Continent.Asia),
             4, smartMeter3Id);
         var smartMeter3 = SmartMeter.Create(smartMeter3Id,
-            "Smart Meter 3", [smartMeter3Metadata]);
+            "Smart Meter 3", [smartMeter3Metadata], new ConnectorSerialNumber(Guid.NewGuid()),
+            "MIICCgKCAgEAncWYOkd7VTOFoE4QJuvdEAP1x+PJVM9bRf+Bs9t1V3NDn5tNUplP0Y6fbamWTAh3Irji5KwxNCSrDVtX6IJ7qDRRN6TG3kbBLngyWQsajO7laLYshFE86jseuEGx3hu9bbN3Q1gLsVb2mkJukw6v0LugiSK++3wFisfVTOAe59XxE0geMTyghnc2jak/LEI5nNoe85yinVAzCQiHJqxqjA93IWwKT7MMOUoVHXOnPd84TeXIuPKNHhfG5J/K545z7cyzLfEfyCvCs6cxsjpFNilrWqxmh4J9ukcooVv7p3s7DSJNWsEbaW6XC4Q+wvy6aHmIVE7llgyV216+qWr8EMCMcHDTnaXr1/PcLFfqOelCgqAU2aIFIZvrAl2GZruFHso/VbryMq9iPQQK5nfJJNisUCQRtUIehTajfGMfBiI62lgqV8Qa/J2pksYppLzX9vQlEa3IsMOCkIwkK/sHHkOx+dfyVoASYnhMDHfQ35aGpCZpaM9XdVfcE0Aip5plpgxDMefg70Ur1TfGJFqD5ix04ehIewg2oh6yu/nU5jAMVm9CsKqUcmpmQkdp2pEb4s6t4A2aIgPMpZpzJmp4WDEsr0v+Bo+kFRDNnWK9dfxav6duE3fLL/IJiX6YfmbRsC0mC+7Mmptg1reeI7xgw4eWfDQluKx7z+2uHQVcgqECAwEAAQ==");
         var policy1 = Policy.Create(new PolicyId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "policy1",
             MeasurementResolution.Hour, LocationResolution.Country, 500, smartMeter3Id);
         var policy2 = Policy.Create(new PolicyId(Guid.Parse("a4c70232-6715-4c15-966f-bf4bcef46d40")), "policy2",

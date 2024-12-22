@@ -26,6 +26,11 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
         return new SmartMeter(smartMeterId, connectorSerialNumber, publicKey);
     }
 
+    public static SmartMeter Create(SmartMeterId smartMeterId, string name, List<Metadata> metadata, ConnectorSerialNumber connectorSerialNumber, string publicKey)
+    {
+        return new SmartMeter(smartMeterId, name, metadata, connectorSerialNumber, publicKey);
+    }
+    
     // Needed by EF Core
     [ExcludeFromCodeCoverage]
     private SmartMeter()
@@ -42,6 +47,15 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
     private SmartMeter(SmartMeterId smartMeterId, ConnectorSerialNumber connectorSerialNumber, string publicKey)
     {
         Id = smartMeterId;
+        ConnectorSerialNumber = connectorSerialNumber;
+        PublicKey = publicKey;
+    }
+    
+    private SmartMeter(SmartMeterId smartMeterId, string name, List<Metadata> metadata, ConnectorSerialNumber connectorSerialNumber, string publicKey)
+    {
+        Id = smartMeterId;
+        Name = name;
+        Metadata = metadata;
         ConnectorSerialNumber = connectorSerialNumber;
         PublicKey = publicKey;
     }
