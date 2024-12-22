@@ -14,7 +14,7 @@ public static class SearchPoliciesEndpoint
         [FromQuery] decimal? maxPrice,
         [FromQuery] MeasurementResolution? measurementResolution)
     {
-        var policies = await policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution); ;
+        var policies = await policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution);
 
         return TypedResults.Ok(policies);
     }
