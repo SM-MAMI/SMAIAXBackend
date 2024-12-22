@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using SMAIAXBackend.API.ApplicationConfigurations;
 using SMAIAXBackend.API.Endpoints.Authentication;
 using SMAIAXBackend.API.Endpoints.Measurement;
+using SMAIAXBackend.API.Endpoints.Order;
 using SMAIAXBackend.API.Endpoints.Policy;
 using SMAIAXBackend.API.Endpoints.PolicyRequest;
 using SMAIAXBackend.API.Endpoints.SmartMeter;
@@ -97,6 +98,7 @@ app.MapAuthenticationEndpoints()
     .MapSmartMeterEndpoints()
     .MapPolicyEndpoints()
     .MapPolicyRequestEndpoints()
+    .MapOrderEndpoints()
     .MapMeasurementEndpoints();
 
 await app.RunAsync();

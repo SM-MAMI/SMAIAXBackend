@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SMAIAXBackend.Infrastructure.DbContexts;
@@ -11,9 +12,11 @@ using SMAIAXBackend.Infrastructure.DbContexts;
 namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222100738_AddedConnectorSerialNumberToSmartMeter")]
+    partial class AddedConnectorSerialNumberToSmartMeter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,10 +207,6 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
-
-                    b.Property<string>("PublicKey")
-                        .HasColumnType("text")
-                        .HasColumnName("publicKey");
 
                     b.HasKey("Id")
                         .HasName("pK_SmartMeter");

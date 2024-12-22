@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography.X509Certificates;
 
+using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 namespace SMAIAXBackend.Domain.Model.Entities;
@@ -7,12 +9,21 @@ namespace SMAIAXBackend.Domain.Model.Entities;
 public sealed class SmartMeter : IEquatable<SmartMeter>
 {
     public SmartMeterId Id { get; } = null!;
+    
+    public ConnectorSerialNumber ConnectorSerialNumber { get; private set; } = new ConnectorSerialNumber(Guid.Empty);
     public string Name { get; private set; } = null!;
     public List<Metadata> Metadata { get; }
+    
+    public string PublicKey { get; private set; } = null!;
 
     public static SmartMeter Create(SmartMeterId smartMeterId, string name, List<Metadata> metadata)
     {
         return new SmartMeter(smartMeterId, name, metadata);
+    }
+    
+    public static SmartMeter Create(SmartMeterId smartMeterId, ConnectorSerialNumber connectorSerialNumber, string publicKey)
+    {
+        return new SmartMeter(smartMeterId, connectorSerialNumber, publicKey);
     }
 
     // Needed by EF Core
@@ -26,6 +37,13 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
         Id = smartMeterId;
         Name = name;
         Metadata = metadata;
+    }
+    
+    private SmartMeter(SmartMeterId smartMeterId, ConnectorSerialNumber connectorSerialNumber, string publicKey)
+    {
+        Id = smartMeterId;
+        ConnectorSerialNumber = connectorSerialNumber;
+        PublicKey = publicKey;
     }
 
     public void AddMetadata(Metadata metadata)

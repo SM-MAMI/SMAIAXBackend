@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
+using SMAIAXBackend.Infrastructure.Services;
 
 namespace SMAIAXBackend.API.ApplicationConfigurations;
 
@@ -21,5 +22,7 @@ public static class ServiceExtensions
         services.AddScoped<ISmartMeterListService, SmartMeterListService>();
         services.AddScoped<ISmartMeterUpdateService, SmartMeterUpdateService>();
         services.AddScoped<ISmartMeterDeleteService, SmartMeterDeleteService>();
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddTransient<IKeyGenerationService, KeyGenerationService>();
     }
 }
