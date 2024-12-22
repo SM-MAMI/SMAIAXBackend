@@ -360,3 +360,7 @@ dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator =
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
+[Migrations/*.cs]
+# Disable formatting for EF Core migrations
+dotnet_diagnostic.IDE0000.severity = none
+dotnet_diagnostic.IDE0055.severity = none

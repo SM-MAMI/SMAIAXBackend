@@ -157,7 +157,7 @@ public class TestBase
                 LocationResolution.State, 500));
 
         // Jane Doe
-        var smartMeter3Id = new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"));
+        var smartMeter3Id = new SmartMeterId(Guid.Parse("b9a436a0-3855-4f33-a267-905c16fc7f80"));
         var smartMeter3Metadata = Metadata.Create(new MetadataId(Guid.Parse("1c8c8313-6fc4-4ebd-9ca8-8a1267441e06")),
             DateTime.UtcNow, new Location("Some Streetname", "Some city", "Some state", "Some county", Continent.Asia),
             4, smartMeter3Id);
