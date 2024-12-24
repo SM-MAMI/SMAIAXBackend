@@ -11,7 +11,6 @@ public static class OrderEndpoints
 
         group.MapPost("/", OrderSmartMeterConnectorEndpoint.Handle)
             .WithName("OrderSmartMeterConnector")
-            .Accepts<object>(contentType)
             .Produces<Guid>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
