@@ -7,26 +7,32 @@ using SMAIAXBackend.Domain.Repositories;
 namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class DeviceConfigListService(
-    IVaultRepository vaultRepository, 
-    ISmartMeterRepository smartMeterRepository) : IDeviceConfigListService
+    IVaultRepository vaultRepository,
+    ISmartMeterRepository smartMeterRepository,
+    IEncryptionService encryptionService
+) : IDeviceConfigListService
 {
     public async Task<DeviceConfigDto> GetDeviceConfigByDeviceIdAsync(Guid id)
     {
         var (username, password, topic) = await vaultRepository.GetMqttBrokerCredentialsAsync(new SmartMeterId(id));
-        
+
         if (username == null || password == null || topic == null)
         {
             throw new DeviceConfigNotFoundException(id);
         }
-        
+
         var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(new SmartMeterId(id));
         if (smartMeter == null)
         {
             throw new SmartMeterNotFoundException(id);
         }
-        
-        var deviceConfigDto = new DeviceConfigDto(username, password, topic, smartMeter.PublicKey);
-        
+
+        var deviceConfigDto = new DeviceConfigDto(
+            encryptionService.Encrypt(username, smartMeter.PublicKey),
+            encryptionService.Encrypt(password, smartMeter.PublicKey), 
+            topic, 
+            smartMeter.PublicKey);
+
         return deviceConfigDto;
     }
 }
