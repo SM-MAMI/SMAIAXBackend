@@ -42,9 +42,11 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
                 problemDetails.Status = StatusCodes.Status409Conflict;
                 problemDetails.Title = "Conflict";
                 break;
+            case InvalidTimeRangeException:
             case MetadataIdMismatchException:
             case SmartMeterIdMismatchException:
             case InsufficientLocationDataException:
+            case PolicyNameMissingException:
                 problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Bad Request";
