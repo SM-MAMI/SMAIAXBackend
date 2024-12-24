@@ -10,7 +10,7 @@ public static class OrderSmartMeterConnectorEndpoint
 {
     public static async Task<Ok<SerialNumberDto>> Handle(
         IOrderService orderService,
-        IKeyGenerationService keyGenerationService)
+        IEncryptionService encryptionService)
     {
         var connectorSerialNumber = await orderService.OrderSmartMeterConnectorAsync();
 
