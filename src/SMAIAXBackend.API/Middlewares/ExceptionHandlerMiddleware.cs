@@ -19,6 +19,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
             case MetadataNotFoundException:
             case PolicyRequestNotFoundException:
             case SmartMeterNotFoundException:
+            case DeviceConfigNotFoundException:
             case UserNotFoundException:
                 problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5";
                 problemDetails.Status = StatusCodes.Status404NotFound;
