@@ -22,7 +22,7 @@ public class SmartMeterConfiguration : IEntityTypeConfiguration<SmartMeter>
 
         builder.Property(sm => sm.ConnectorSerialNumber)
             .HasConversion(
-                v => v.Id,
+                v => v.SerialNumber,
                 v => new ConnectorSerialNumber(v))
             .IsRequired();
 

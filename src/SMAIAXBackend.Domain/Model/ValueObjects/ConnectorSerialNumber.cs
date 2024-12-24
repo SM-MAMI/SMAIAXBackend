@@ -1,16 +1,16 @@
 ﻿namespace SMAIAXBackend.Domain.Model.ValueObjects;
 
-public class ConnectorSerialNumber(Guid id) : ValueObject
+public class ConnectorSerialNumber(Guid serialNumber) : ValueObject
 {
-    public Guid Id { get; } = id;
+    public Guid SerialNumber { get; } = serialNumber;
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
-        yield return Id;
+        yield return SerialNumber;
     }
 
     public override string ToString()
     {
-        return Id.ToString();
+        return SerialNumber.ToString();
     }
 }
