@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SMAIAXBackend.Infrastructure.DbContexts;
@@ -11,9 +12,11 @@ using SMAIAXBackend.Infrastructure.DbContexts;
 namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222100738_AddedConnectorSerialNumberToSmartMeter")]
+    partial class AddedConnectorSerialNumberToSmartMeter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,7 +108,7 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<int?>("HouseholdSize")
+                    b.Property<int>("HouseholdSize")
                         .HasColumnType("integer")
                         .HasColumnName("householdSize");
 
@@ -205,10 +208,6 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<string>("PublicKey")
-                        .HasColumnType("text")
-                        .HasColumnName("publicKey");
-
                     b.HasKey("Id")
                         .HasName("pK_SmartMeter");
 
@@ -229,28 +228,23 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                 .HasColumnName("id");
 
                             b1.Property<string>("City")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
+                                .HasColumnType("text")
                                 .HasColumnName("city");
 
                             b1.Property<string>("Continent")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
+                                .HasColumnType("text")
                                 .HasColumnName("continent");
 
                             b1.Property<string>("Country")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
+                                .HasColumnType("text")
                                 .HasColumnName("country");
 
                             b1.Property<string>("State")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
+                                .HasColumnType("text")
                                 .HasColumnName("state");
 
                             b1.Property<string>("StreetName")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
+                                .HasColumnType("text")
                                 .HasColumnName("streetName");
 
                             b1.HasKey("MetadataId");
@@ -262,7 +256,8 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                 .HasConstraintName("fK_Metadata_Metadata_id");
                         });
 
-                    b.Navigation("Location");
+                    b.Navigation("Location")
+                        .IsRequired();
 
                     b.Navigation("SmartMeter");
                 });
