@@ -35,7 +35,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 
     public async Task SeedTestData()
     {
-        SmartMeterId smartMeter1Id = new(Guid.NewGuid());
+        SmartMeterId smartMeter1Id = new(Guid.Parse("070dec95-56bb-4154-a2c4-c26faf9fff4d"));
         Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Oceania),
             4, smartMeter1Id);
