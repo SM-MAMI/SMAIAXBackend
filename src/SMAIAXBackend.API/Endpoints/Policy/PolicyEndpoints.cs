@@ -34,6 +34,13 @@ public static class PolicyEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet("/{id:guid}/measurements", GetMeasurementsByPolicyEndpoint.Handle)
+            .WithName("getMeasurementsByPolicy")
+            .Produces<List<MeasurementRawDto>>(StatusCodes.Status200OK, contentType)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         return app;
     }
 }

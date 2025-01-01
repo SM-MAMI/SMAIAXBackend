@@ -1,5 +1,9 @@
-﻿using SMAIAXBackend.Application.DTOs;
+﻿using Microsoft.Extensions.Logging;
+
+using SMAIAXBackend.Application.DTOs;
+using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Interfaces;
+using SMAIAXBackend.Domain.Handlers;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
@@ -9,9 +13,11 @@ using SMAIAXBackend.Domain.Specifications;
 namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class PolicyListService(
+    IMeasurementHandler measurementHandler,
     IPolicyRepository policyRepository,
     ITenantRepository tenantRepository,
-    ITenantContextService tenantContextService) : IPolicyListService
+    ITenantContextService tenantContextService,
+    ILogger<PolicyListService> logger) : IPolicyListService
 {
     public async Task<List<PolicyDto>> GetPoliciesBySmartMeterIdAsync(SmartMeterId smartMeterId)
     {
@@ -55,5 +61,19 @@ public class PolicyListService(
         }
 
         return matchingPolicies;
+    }
+
+    public async Task<List<MeasurementRawDto>> GetMeasurementsByPolicyIdAsync(Guid policyId)
+    {
+        var policy = await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId));
+
+        if (policy == null)
+        {
+            logger.LogError("Policy with id '{policyId}' not found.", policyId);
+            throw new PolicyNotFoundException(policyId);
+        }
+
+        var measurements = await measurementHandler.GetMeasurementsByPolicyAsync(policy);
+        return measurements.Select(MeasurementRawDto.FromMeasurement).ToList();
     }
 }

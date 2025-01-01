@@ -32,8 +32,6 @@ public class PolicyRepository(
             .ToListAsync();
     }
 
-
-
     public async Task<List<Policy>> GetPoliciesByTenantAsync(Tenant tenant)
     {
         var tenantSpecificDbContext = tenantDbContextFactory.CreateDbContext(tenant.DatabaseName,
@@ -45,5 +43,10 @@ public class PolicyRepository(
     public async Task<List<Policy>> GetPoliciesAsync()
     {
         return await tenantDbContext.Policies.ToListAsync();
+    }
+
+    public async Task<Policy?> GetPolicyByIdAsync(PolicyId policyId)
+    {
+        return await tenantDbContext.Policies.FirstOrDefaultAsync(p => p.Id.Equals(policyId));
     }
 }

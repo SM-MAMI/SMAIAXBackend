@@ -81,7 +81,7 @@ public class MeasurementTests : TestBase
         var smartMeterId = Guid.Parse("1ea76ec6-f9cf-417e-b3ad-cb672a98f53f");
         var startAt = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ssZ");
         var endAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-        var expectedDetails = $"Smart meter with id '{smartMeterId} not found.";
+        var expectedDetails = $"Smart meter with id '{smartMeterId}' not found.";
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
         // When

@@ -1,4 +1,5 @@
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 namespace SMAIAXBackend.Domain.Repositories;
@@ -14,4 +15,9 @@ public interface IMeasurementRepository
     /// <returns>All measurements between given limitations.</returns>
     Task<List<Measurement>> GetMeasurementsBySmartMeterAsync(SmartMeterId smartMeterId, DateTime startAt,
         DateTime endAt);
+
+    Task<List<Measurement>> GetMeasurementsBySmartMeterAndResolutionAsync(SmartMeterId smartMeterId,
+        MeasurementResolution measurementResolution,
+        DateTime? startAt,
+        DateTime? endAt);
 }

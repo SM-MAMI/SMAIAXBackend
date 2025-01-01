@@ -1,7 +1,10 @@
+using Microsoft.Extensions.Logging;
+
 using Moq;
 
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
+using SMAIAXBackend.Domain.Handlers;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
@@ -16,15 +19,17 @@ public class PolicyListServiceTests
     private Mock<ITenantRepository> _tenantRepositoryMock;
     private Mock<ITenantContextService> _tenantContextServiceMock;
     private PolicyListService _policyListService;
+    private Mock<IMeasurementHandler> _measurementHandlerMock;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        _measurementHandlerMock = new Mock<IMeasurementHandler>();
         _policyRepositoryMock = new Mock<IPolicyRepository>();
         _tenantRepositoryMock = new Mock<ITenantRepository>();
         _tenantContextServiceMock = new Mock<ITenantContextService>();
-        _policyListService = new PolicyListService(_policyRepositoryMock.Object, _tenantRepositoryMock.Object,
-            _tenantContextServiceMock.Object);
+        _policyListService = new PolicyListService(_measurementHandlerMock.Object, _policyRepositoryMock.Object, _tenantRepositoryMock.Object,
+            _tenantContextServiceMock.Object, Mock.Of<ILogger<PolicyListService>>());
     }
 
     [Test]
