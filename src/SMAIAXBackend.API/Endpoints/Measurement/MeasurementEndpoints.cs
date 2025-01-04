@@ -10,7 +10,7 @@ public static class MeasurementEndpoints
         RouteGroupBuilder group = app.MapGroup("/api/measurements").WithTags("Measurement").RequireAuthorization();
         group.MapGet("/", GetMeasurementsEndpoint.Handle)
             .WithName("getMeasurements")
-            .Produces<List<MeasurementRawDto>>(StatusCodes.Status200OK, contentType)
+            .Produces<List<MeasurementDto>>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)

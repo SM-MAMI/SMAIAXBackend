@@ -63,7 +63,7 @@ public class PolicyListService(
         return matchingPolicies;
     }
 
-    public async Task<List<MeasurementRawDto>> GetMeasurementsByPolicyIdAsync(Guid policyId)
+    public async Task<List<MeasurementDto>> GetMeasurementsByPolicyIdAsync(Guid policyId)
     {
         var policy = await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId));
 
@@ -74,6 +74,6 @@ public class PolicyListService(
         }
 
         var measurements = await measurementHandler.GetMeasurementsByPolicyAsync(policy);
-        return measurements.Select(MeasurementRawDto.FromMeasurement).ToList();
+        return measurements.Select(MeasurementDto.FromMeasurement).ToList();
     }
 }

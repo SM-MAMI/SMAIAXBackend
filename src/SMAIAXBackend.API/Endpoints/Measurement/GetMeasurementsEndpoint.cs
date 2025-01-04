@@ -8,7 +8,7 @@ namespace SMAIAXBackend.API.Endpoints.Measurement;
 
 public static class GetMeasurementsEndpoint
 {
-    public static async Task<Ok<List<MeasurementRawDto>>> Handle(IMeasurementListService measurementListService,
+    public static async Task<Ok<List<MeasurementDto>>> Handle(IMeasurementListService measurementListService,
         [FromQuery] Guid smartMeterId,
         [FromQuery] DateTime startAt, [FromQuery] DateTime endAt)
     {

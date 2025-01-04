@@ -1,8 +1,8 @@
-﻿using SMAIAXBackend.Domain.Model.Entities;
+﻿using SMAIAXBackend.Domain.Model.Entities.Measurements;
 
 namespace SMAIAXBackend.Application.DTOs;
 
-public class MeasurementRawDto(
+public class MeasurementDto(
     double positiveActivePower,
     double positiveActiveEnergyTotal,
     double negativeActivePower,
@@ -35,9 +35,9 @@ public class MeasurementRawDto(
     public string Uptime { get; set; } = uptime;
     public DateTime Timestamp { get; set; } = timestamp;
 
-    public static MeasurementRawDto FromMeasurement(Measurement measurement)
+    public static MeasurementDto FromMeasurement(MeasurementBase measurement)
     {
-        return new MeasurementRawDto(measurement.PositiveActivePower, measurement.PositiveActiveEnergyTotal,
+        return new MeasurementDto(measurement.PositiveActivePower, measurement.PositiveActiveEnergyTotal,
             measurement.NegativeActivePower, measurement.NegativeActiveEnergyTotal,
             measurement.ReactiveEnergyQuadrant1Total, measurement.ReactiveEnergyQuadrant3Total, measurement.TotalPower,
             measurement.CurrentPhase1, measurement.VoltagePhase1,

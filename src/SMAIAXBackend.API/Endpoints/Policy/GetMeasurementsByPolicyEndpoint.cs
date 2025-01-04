@@ -8,7 +8,7 @@ namespace SMAIAXBackend.API.Endpoints.Policy;
 
 public static class GetMeasurementsByPolicyEndpoint
 {
-    public static async Task<Ok<List<MeasurementRawDto>>> Handle(
+    public static async Task<Ok<List<MeasurementDto>>> Handle(
         IPolicyListService policyListService,
         [FromRoute] Guid id)
     {

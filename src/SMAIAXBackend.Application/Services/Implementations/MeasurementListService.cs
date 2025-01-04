@@ -10,7 +10,7 @@ public class MeasurementListService(
     IMeasurementRepository measurementRepository,
     ISmartMeterRepository smartMeterRepository) : IMeasurementListService
 {
-    public async Task<List<MeasurementRawDto>> GetMeasurementsBySmartMeterAsync(
+    public async Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAsync(
         Guid smartMeterId, DateTime startAt, DateTime endAt)
     {
         var smId = new SmartMeterId(smartMeterId);
@@ -26,6 +26,6 @@ public class MeasurementListService(
         }
 
         var measurements = await measurementRepository.GetMeasurementsBySmartMeterAsync(smId, startAt, endAt);
-        return measurements.Select(MeasurementRawDto.FromMeasurement).ToList();
+        return measurements.Select(MeasurementDto.FromMeasurement).ToList();
     }
 }

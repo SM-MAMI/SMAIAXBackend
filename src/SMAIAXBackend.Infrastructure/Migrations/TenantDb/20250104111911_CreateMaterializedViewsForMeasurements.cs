@@ -37,11 +37,11 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                              AVG("reactiveEnergyQuadrant1Total"),
                                              AVG("reactiveEnergyQuadrant3Total"),
                                              AVG("totalPower"),
-                                             AVG("currentPhase1") ,
-                                             AVG("voltagePhase1") ,
-                                             AVG("currentPhase2") ,
-                                             AVG("voltagePhase2") ,
-                                             AVG("currentPhase3") ,
+                                             AVG("currentPhase1"),
+                                             AVG("voltagePhase1"),
+                                             AVG("currentPhase2"),
+                                             AVG("voltagePhase2"),
+                                             AVG("currentPhase3"),
                                              AVG("voltagePhase3")
                                              FROM "domain"."Measurement"
                                              GROUP BY time_bucket('1 minute', "timestamp"), "smartMeterId";
@@ -54,7 +54,7 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                  end_offset => null,
                                  schedule_interval => INTERVAL '1 minute');
                                  """);
-            
+
             // per quarter hour
             migrationBuilder.Sql("""
                                  CREATE MATERIALIZED VIEW "domain"."MeasurementPerQuarterHour"("timestamp", "smartMeterId","uptime",
@@ -82,16 +82,16 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                              AVG("reactiveEnergyQuadrant1Total"),
                                              AVG("reactiveEnergyQuadrant3Total"),
                                              AVG("totalPower"),
-                                             AVG("currentPhase1") ,
-                                             AVG("voltagePhase1") ,
-                                             AVG("currentPhase2") ,
-                                             AVG("voltagePhase2") ,
-                                             AVG("currentPhase3") ,
+                                             AVG("currentPhase1"),
+                                             AVG("voltagePhase1"),
+                                             AVG("currentPhase2"),
+                                             AVG("voltagePhase2"),
+                                             AVG("currentPhase3"),
                                              AVG("voltagePhase3")
                                              FROM "domain"."Measurement"
                                              GROUP BY time_bucket('15 minutes', "timestamp"), "smartMeterId";
                                  """, true);
-            
+
             // start refreshing view every quarter-hour
             migrationBuilder.Sql("""
                                  SELECT add_continuous_aggregate_policy('"domain"."MeasurementPerQuarterHour"',
@@ -127,16 +127,16 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                              AVG("reactiveEnergyQuadrant1Total"),
                                              AVG("reactiveEnergyQuadrant3Total"),
                                              AVG("totalPower"),
-                                             AVG("currentPhase1") ,
-                                             AVG("voltagePhase1") ,
-                                             AVG("currentPhase2") ,
-                                             AVG("voltagePhase2") ,
-                                             AVG("currentPhase3") ,
+                                             AVG("currentPhase1"),
+                                             AVG("voltagePhase1"),
+                                             AVG("currentPhase2"),
+                                             AVG("voltagePhase2"),
+                                             AVG("currentPhase3"),
                                              AVG("voltagePhase3")
                                              FROM "domain"."Measurement"
                                              GROUP BY time_bucket('1 hour', "timestamp"), "smartMeterId";
                                  """, true);
-            
+
             // start refreshing view every hour
             migrationBuilder.Sql("""
                                  SELECT add_continuous_aggregate_policy('"domain"."MeasurementPerHour"',
@@ -144,7 +144,7 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                  end_offset => null,
                                  schedule_interval => INTERVAL '1 hour');
                                  """);
-            
+
             // per day
             migrationBuilder.Sql("""
                                  CREATE MATERIALIZED VIEW "domain"."MeasurementPerDay"("timestamp", "smartMeterId","uptime",
@@ -172,16 +172,16 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                              AVG("reactiveEnergyQuadrant1Total"),
                                              AVG("reactiveEnergyQuadrant3Total"),
                                              AVG("totalPower"),
-                                             AVG("currentPhase1") ,
-                                             AVG("voltagePhase1") ,
-                                             AVG("currentPhase2") ,
-                                             AVG("voltagePhase2") ,
-                                             AVG("currentPhase3") ,
+                                             AVG("currentPhase1"),
+                                             AVG("voltagePhase1"),
+                                             AVG("currentPhase2"),
+                                             AVG("voltagePhase2"),
+                                             AVG("currentPhase3"),
                                              AVG("voltagePhase3")
                                              FROM "domain"."Measurement"
                                              GROUP BY time_bucket('1 day', "timestamp"), "smartMeterId";
                                  """, true);
-            
+
             // start refreshing view every day
             migrationBuilder.Sql("""
                                  SELECT add_continuous_aggregate_policy('"domain"."MeasurementPerDay"',
@@ -189,7 +189,7 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                  end_offset => null,
                                  schedule_interval => INTERVAL '1 day');
                                  """);
-            
+
             // per week
             migrationBuilder.Sql("""
                                  CREATE MATERIALIZED VIEW "domain"."MeasurementPerWeek"("timestamp", "smartMeterId","uptime",
@@ -217,16 +217,16 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                                              AVG("reactiveEnergyQuadrant1Total"),
                                              AVG("reactiveEnergyQuadrant3Total"),
                                              AVG("totalPower"),
-                                             AVG("currentPhase1") ,
-                                             AVG("voltagePhase1") ,
-                                             AVG("currentPhase2") ,
-                                             AVG("voltagePhase2") ,
-                                             AVG("currentPhase3") ,
+                                             AVG("currentPhase1"),
+                                             AVG("voltagePhase1"),
+                                             AVG("currentPhase2"),
+                                             AVG("voltagePhase2"),
+                                             AVG("currentPhase3"),
                                              AVG("voltagePhase3")
                                              FROM "domain"."Measurement"
                                              GROUP BY time_bucket('1 week', "timestamp"), "smartMeterId";
                                  """, true);
-            
+
             // start refreshing view every week
             migrationBuilder.Sql("""
                                  SELECT add_continuous_aggregate_policy('"domain"."MeasurementPerWeek"',

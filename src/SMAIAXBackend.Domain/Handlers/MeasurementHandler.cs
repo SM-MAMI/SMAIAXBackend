@@ -1,5 +1,7 @@
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Entities.Measurements;
 using SMAIAXBackend.Domain.Model.Enums;
+using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Domain.Specifications;
 
@@ -9,12 +11,12 @@ public class MeasurementHandler(
     ISmartMeterRepository smartMeterRepository,
     IMeasurementRepository measurementRepository) : IMeasurementHandler
 {
-    public async Task<IList<Measurement>> GetMeasurementsByPolicyAsync(Policy policy)
+    public async Task<IList<MeasurementBase>> GetMeasurementsByPolicyAsync(Policy policy)
     {
         var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(policy.SmartMeterId);
         if (smartMeter == null)
         {
-            return Array.Empty<Measurement>();
+            return Array.Empty<MeasurementBase>();
         }
 
         var timeSpans = new List<Span>();
@@ -26,11 +28,11 @@ public class MeasurementHandler(
         else
         {
             // Otherwise location resolution must match with metadata.
-            var metadata = smartMeter.Metadata.OrderByDescending(m => m.ValidFrom).ToList();
+            var metadata = smartMeter.Metadata.OrderBy(m => m.ValidFrom).ToList();
             if (metadata.Count == 0)
             {
                 // If no metadata given, policy location resolution can not match because there is no location reference for the measurements.
-                return Array.Empty<Measurement>();
+                return Array.Empty<MeasurementBase>();
             }
 
             var specification = new LocationResolutionSpecification(policy.LocationResolution);
@@ -42,18 +44,71 @@ public class MeasurementHandler(
                 }
 
                 var nextIndex = i + 1;
-                // reversed order
-                timeSpans.Add(new Span(nextIndex >= metadata!.Count ? null : metadata[i + 1].ValidFrom,
-                    metadata[i].ValidFrom));
+                timeSpans.Add(new Span(metadata[i].ValidFrom,
+                    nextIndex >= metadata!.Count ? null : metadata[i + 1].ValidFrom));
             }
         }
 
-        var measurements = new List<Measurement>();
-        foreach (Span span in timeSpans)
+
+        return await GetMeasurementsByResolutionAndTimeSpans(policy.MeasurementResolution, timeSpans, smartMeter.Id);
+    }
+
+    private async Task<IList<MeasurementBase>> GetMeasurementsByResolutionAndTimeSpans(
+        MeasurementResolution measurementResolution,
+        List<Span> timeSpans, SmartMeterId smartMeterId)
+    {
+        var measurements = new List<MeasurementBase>();
+        switch (measurementResolution)
         {
-            var mes = await measurementRepository.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeter.Id,
-                policy.MeasurementResolution, span.Start, span.End);
-            measurements.AddRange(mes);
+            case MeasurementResolution.Minute:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsPerMinuteBySmartMeterAsync(smartMeterId, span.Start,
+                            span.End));
+                }
+                break;
+            case MeasurementResolution.QuarterHour:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsPerQuarterHourBySmartMeterAsync(smartMeterId,
+                            span.Start, span.End));
+                }
+                break;
+            case MeasurementResolution.Hour:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsPerHourBySmartMeterAsync(smartMeterId, span.Start,
+                            span.End));
+                }
+                break;
+            case MeasurementResolution.Day:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsPerDayBySmartMeterAsync(smartMeterId, span.Start,
+                            span.End));
+                }
+                break;
+            case MeasurementResolution.Week:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsPerWeekBySmartMeterAsync(smartMeterId, span.Start,
+                            span.End));
+                }
+                break;
+            default:
+                foreach (var span in timeSpans)
+                {
+                    measurements.AddRange(
+                        await measurementRepository.GetMeasurementsBySmartMeterAsync(smartMeterId, span.Start,
+                            span.End));
+                }
+
+                break;
         }
 
         return measurements;
