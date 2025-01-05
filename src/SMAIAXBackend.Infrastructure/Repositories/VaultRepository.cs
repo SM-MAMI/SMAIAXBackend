@@ -6,7 +6,6 @@ using SMAIAXBackend.Infrastructure.Configurations;
 
 using VaultSharp;
 using VaultSharp.V1.AuthMethods.Token;
-using VaultSharp.V1.SecretsEngines.ActiveDirectory.Models;
 using VaultSharp.V1.SecretsEngines.Database;
 using VaultSharp.V1.SecretsEngines.Database.Models.PostgreSQL;
 

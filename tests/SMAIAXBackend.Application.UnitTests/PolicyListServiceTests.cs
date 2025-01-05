@@ -1,9 +1,14 @@
+using Microsoft.Extensions.Logging;
+
 using Moq;
 
+using SMAIAXBackend.Application.DTOs;
+using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
+using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 
@@ -16,15 +21,20 @@ public class PolicyListServiceTests
     private Mock<ITenantRepository> _tenantRepositoryMock;
     private Mock<ITenantContextService> _tenantContextServiceMock;
     private PolicyListService _policyListService;
+    private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
+    private Mock<IMeasurementListService> _measurementListServiceMock;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
         _policyRepositoryMock = new Mock<IPolicyRepository>();
+        _smartMeterRepositoryMock = new Mock<ISmartMeterRepository>();
         _tenantRepositoryMock = new Mock<ITenantRepository>();
+        _measurementListServiceMock = new Mock<IMeasurementListService>();
         _tenantContextServiceMock = new Mock<ITenantContextService>();
-        _policyListService = new PolicyListService(_policyRepositoryMock.Object, _tenantRepositoryMock.Object,
-            _tenantContextServiceMock.Object);
+        _policyListService = new PolicyListService(_policyRepositoryMock.Object, _smartMeterRepositoryMock.Object,
+            _tenantRepositoryMock.Object, _measurementListServiceMock.Object, _tenantContextServiceMock.Object,
+            Mock.Of<ILogger<PolicyListService>>());
     }
 
     [Test]
@@ -171,5 +181,126 @@ public class PolicyListServiceTests
         // Then
         Assert.That(policiesActual, Is.Not.Null);
         Assert.That(policiesActual, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenPolicy_WhenGetMeasurementsByPolicyIdAsync_ThenMeasurementsAreReturned()
+    {
+        // Given
+        var policyId = Guid.NewGuid();
+        var smartMeterId = new SmartMeterId(Guid.NewGuid());
+        var policy = Policy.Create(new PolicyId(policyId), "policy name", MeasurementResolution.Hour,
+            LocationResolution.State, 100, smartMeterId);
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync(policy);
+        var validFrom = new DateTime(2020, 01, 01, 12, 0, 0, DateTimeKind.Utc);
+        var location = new Location(null, null, "Vorarlberg", "Austria", Continent.Europe);
+        var metadata = new List<Metadata>()
+        {
+            Metadata.Create(new MetadataId(Guid.NewGuid()), validFrom, location, null, smartMeterId)
+        };
+        var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", metadata);
+        _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
+        var measurementsExpected = new List<MeasurementDto>()
+        {
+            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
+        };
+        _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
+                MeasurementResolution.Hour,
+                new List<(DateTime?, DateTime?)>() { new ValueTuple<DateTime?, DateTime?>(validFrom, null) }))
+            .ReturnsAsync(measurementsExpected);
+
+        // When
+        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+
+        // Then
+        Assert.That(measurementsActual, Is.Not.Null);
+        Assert.That(measurementsActual, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GivenPolicy_WhenGetMeasurementsByPolicyIdAsyncLocationResolutionNone_ThenMeasurementsAreReturned()
+    {
+        // Given
+        var policyId = Guid.NewGuid();
+        var smartMeterId = new SmartMeterId(Guid.NewGuid());
+        var policy = Policy.Create(new PolicyId(policyId), "policy name", MeasurementResolution.Hour,
+            LocationResolution.None, 100, smartMeterId);
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync(policy);
+        var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
+        _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
+        var measurementsExpected = new List<MeasurementDto>()
+        {
+            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
+        };
+        _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
+                MeasurementResolution.Hour, null))
+            .ReturnsAsync(measurementsExpected);
+
+        // When
+        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+
+        // Then
+        Assert.That(measurementsActual, Is.Not.Null);
+        Assert.That(measurementsActual, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GivenPolicy_WhenGetMeasurementsByPolicyIdAsyncMetadataEmpty_ThenMeasurementsAreReturned()
+    {
+        // Given
+        var policyId = Guid.NewGuid();
+        var smartMeterId = new SmartMeterId(Guid.NewGuid());
+        var policy = Policy.Create(new PolicyId(policyId), "policy name", MeasurementResolution.Hour,
+            LocationResolution.State, 100, smartMeterId);
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync(policy);
+        var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
+        _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
+        var measurementsExpected = new List<MeasurementDto>()
+        {
+            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
+        };
+        _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
+                MeasurementResolution.Hour, null))
+            .ReturnsAsync(measurementsExpected);
+
+        // When
+        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+
+        // Then
+        Assert.That(measurementsActual, Is.Not.Null);
+        Assert.That(measurementsActual, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public void GivenNoPolicy_WhenGetMeasurementsByPolicyIdAsync_ThenPolicyNotFoundException()
+    {
+        // Given
+        var policyId = Guid.NewGuid();
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync((Policy)null!);
+
+        // When Then
+        Assert.ThrowsAsync<PolicyNotFoundException>(() => _policyListService.GetMeasurementsByPolicyIdAsync(policyId));
+    }
+
+    [Test]
+    public void GivenNoPolicy_WhenGetMeasurementsByPolicyIdAsync_ThenSmartMeterNotFoundException()
+    {
+        // Given
+        var policyId = Guid.NewGuid();
+        var smartMeterId = new SmartMeterId(Guid.NewGuid());
+        var policy = Policy.Create(new PolicyId(policyId), "policy name", MeasurementResolution.Hour,
+            LocationResolution.State, 100, smartMeterId);
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync(policy);
+        _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId))
+            .ReturnsAsync((SmartMeter)null!);
+
+        // When Then
+        Assert.ThrowsAsync<SmartMeterNotFoundException>(() =>
+            _policyListService.GetMeasurementsByPolicyIdAsync(policyId));
     }
 }
