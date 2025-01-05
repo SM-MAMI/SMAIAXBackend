@@ -3,6 +3,7 @@
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Entities.Measurements;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 
@@ -33,26 +34,7 @@ public class MeasurementListServiceTests
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
         var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
-        var measurementsExpected = new List<Measurement>
-        {
-            Measurement.Create(
-                new SmartMeterId(Guid.NewGuid()),
-                100.0,
-                200.0,
-                50.0,
-                75.0,
-                30.0,
-                45.0,
-                500.0,
-                10.0,
-                220.0,
-                15.0,
-                230.0,
-                20.0,
-                240.0,
-                "1000h",
-                DateTime.UtcNow)
-        };
+        var measurementsExpected = new List<Measurement> { new() };
 
         _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeter.Id)).ReturnsAsync(smartMeter);
         _measurementRepositoryMock
@@ -60,7 +42,8 @@ public class MeasurementListServiceTests
             .ReturnsAsync(measurementsExpected);
 
         // When
-        var measurementsActual = await _measurementListService.GetMeasurementsBySmartMeterAsync(smartMeterId.Id, startAt, endAt);
+        var measurementsActual =
+            await _measurementListService.GetMeasurementsBySmartMeterAsync(smartMeterId.Id, startAt, endAt);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
@@ -76,7 +59,8 @@ public class MeasurementListServiceTests
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
 
-        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(It.IsAny<SmartMeterId>())).ReturnsAsync((SmartMeter)null!);
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(It.IsAny<SmartMeterId>()))
+            .ReturnsAsync((SmartMeter)null!);
 
         // When ... Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>

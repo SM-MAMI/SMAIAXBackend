@@ -33,7 +33,7 @@ public class MeasurementTests : TestBase
         var responseContent = await response.Content.ReadAsStringAsync();
         Assert.That(responseContent, Is.Not.Null);
 
-        var measurements = JsonConvert.DeserializeObject<List<MeasurementRawDto>>(responseContent);
+        var measurements = JsonConvert.DeserializeObject<List<MeasurementDto>>(responseContent);
         Assert.That(measurements, Has.Count.EqualTo(1));
     }
 
@@ -52,7 +52,7 @@ public class MeasurementTests : TestBase
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var responseContent = await response.Content.ReadFromJsonAsync<IList<MeasurementRawDto>>();
+        var responseContent = await response.Content.ReadFromJsonAsync<IList<MeasurementDto>>();
         Assert.That(responseContent, Is.Not.Null);
         Assert.That(responseContent, Is.Empty);
     }

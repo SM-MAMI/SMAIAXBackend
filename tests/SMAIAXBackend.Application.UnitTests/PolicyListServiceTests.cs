@@ -2,10 +2,12 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
+using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
 using SMAIAXBackend.Domain.Handlers;
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Entities.Measurements;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
@@ -28,7 +30,8 @@ public class PolicyListServiceTests
         _policyRepositoryMock = new Mock<IPolicyRepository>();
         _tenantRepositoryMock = new Mock<ITenantRepository>();
         _tenantContextServiceMock = new Mock<ITenantContextService>();
-        _policyListService = new PolicyListService(_measurementHandlerMock.Object, _policyRepositoryMock.Object, _tenantRepositoryMock.Object,
+        _policyListService = new PolicyListService(_measurementHandlerMock.Object, _policyRepositoryMock.Object,
+            _tenantRepositoryMock.Object,
             _tenantContextServiceMock.Object, Mock.Of<ILogger<PolicyListService>>());
     }
 
@@ -176,5 +179,37 @@ public class PolicyListServiceTests
         // Then
         Assert.That(policiesActual, Is.Not.Null);
         Assert.That(policiesActual, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenPolicy_WhenGetMeasurementsByPolicyIdAsync_ThenMeasurementsAreReturned()
+    {
+        // Given
+        var policyId = Guid.Parse("1ffc84f8-d93e-4936-8e3f-c84214ad6bb9");
+        var policy = Policy.Create(new PolicyId(policyId), "policy name", MeasurementResolution.Hour,
+            LocationResolution.None, 100, new SmartMeterId(Guid.Empty));
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync(policy);
+        var measurementsExpected = new List<MeasurementBase>() { new MeasurementPerHour() };
+        _measurementHandlerMock.Setup(m => m.GetMeasurementsByPolicyAsync(policy)).ReturnsAsync(measurementsExpected);
+
+        // When
+        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+
+        // Then
+        Assert.That(measurementsActual, Is.Not.Null);
+        Assert.That(measurementsActual, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void GivenNoPolicy_WhenGetMeasurementsByPolicyIdAsync_ThenPolicyNotFoundException()
+    {
+        // Given
+        var policyId = Guid.Parse("1ffc84f8-d93e-4936-8e3f-c84214ad6bb9");
+        _policyRepositoryMock.Setup(p => p.GetPolicyByIdAsync(It.Is<PolicyId>(id => id.Id == policyId)))
+            .ReturnsAsync((Policy)null!);
+
+        // When Then
+        Assert.ThrowsAsync<PolicyNotFoundException>(() => _policyListService.GetMeasurementsByPolicyIdAsync(policyId));
     }
 }
