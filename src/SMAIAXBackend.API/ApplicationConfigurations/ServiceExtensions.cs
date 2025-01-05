@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
-using SMAIAXBackend.Domain.Handlers;
 using SMAIAXBackend.Infrastructure.Services;
 
 namespace SMAIAXBackend.API.ApplicationConfigurations;
@@ -23,6 +22,5 @@ public static class ServiceExtensions
         services.AddScoped<ISmartMeterDeleteService, SmartMeterDeleteService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddTransient<IKeyGenerationService, KeyGenerationService>();
-        services.AddTransient<IMeasurementHandler, MeasurementHandler>();
     }
 }

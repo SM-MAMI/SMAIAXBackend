@@ -3,7 +3,6 @@
 using SMAIAXBackend.Application.DTOs;
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Interfaces;
-using SMAIAXBackend.Domain.Handlers;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
@@ -13,9 +12,10 @@ using SMAIAXBackend.Domain.Specifications;
 namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class PolicyListService(
-    IMeasurementHandler measurementHandler,
     IPolicyRepository policyRepository,
+    ISmartMeterRepository smartMeterRepository,
     ITenantRepository tenantRepository,
+    IMeasurementListService measurementListService,
     ITenantContextService tenantContextService,
     ILogger<PolicyListService> logger) : IPolicyListService
 {
@@ -66,14 +66,46 @@ public class PolicyListService(
     public async Task<List<MeasurementDto>> GetMeasurementsByPolicyIdAsync(Guid policyId)
     {
         var policy = await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId));
-
         if (policy == null)
         {
             logger.LogError("Policy with id '{policyId}' not found.", policyId);
             throw new PolicyNotFoundException(policyId);
         }
 
-        var measurements = await measurementHandler.GetMeasurementsByPolicyAsync(policy);
-        return measurements.Select(MeasurementDto.FromMeasurement).ToList();
+        if (policy.LocationResolution == LocationResolution.None)
+        {
+            // If location resolution "does not matter", return all measurements.
+            return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(policy.SmartMeterId.Id, policy.MeasurementResolution);
+        }
+
+        // Otherwise location resolution must match with metadata.
+        var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(policy.SmartMeterId);
+        if (smartMeter == null)
+        {
+            throw new SmartMeterNotFoundException(policy.SmartMeterId.Id);
+        }
+
+        var metadata = smartMeter.Metadata.OrderBy(m => m.ValidFrom).ToList();
+        if (metadata.Count == 0)
+        {
+            // If no metadata given, policy location resolution can not match because there is no location reference for the measurements.
+            return [];
+        }
+
+        var timeSpans = new List<(DateTime?, DateTime?)>();
+        var specification = new LocationResolutionSpecification(policy.LocationResolution);
+        for (var i = 0; i < metadata!.Count; i += 1)
+        {
+            if (!specification.IsSatisfiedBy(metadata[i]))
+            {
+                continue;
+            }
+
+            var nextIndex = i + 1;
+            timeSpans.Add((metadata[i].ValidFrom, nextIndex >= metadata!.Count ? null : metadata[i + 1].ValidFrom));
+        }
+
+        return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeter.Id.Id,
+            policy.MeasurementResolution, timeSpans);
     }
 }
