@@ -33,7 +33,7 @@ public class MetadataConfiguration : IEntityTypeConfiguration<Metadata>
             location.Property(l => l.Continent).HasColumnName("continent").HasConversion<string>().HasMaxLength(200);
         });
 
-        builder.Property(m => m.HouseholdSize);
+        builder.Property(m => m.HouseholdSize).IsRequired(false);
 
         builder.HasOne(md => md.SmartMeter)
             .WithMany(sm => sm.Metadata)

@@ -18,6 +18,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
         {
             case MetadataNotFoundException:
             case PolicyRequestNotFoundException:
+            case PolicyNotFoundException:
             case SmartMeterNotFoundException:
             case DeviceConfigNotFoundException:
             case UserNotFoundException:

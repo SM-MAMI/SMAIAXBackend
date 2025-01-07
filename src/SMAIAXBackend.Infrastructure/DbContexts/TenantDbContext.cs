@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Entities.Measurements;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
@@ -14,6 +15,11 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 {
     public DbSet<SmartMeter> SmartMeters { get; init; }
     public DbSet<Measurement> Measurements { get; init; }
+    public DbSet<MeasurementPerMinute> MeasurementsPerMinute { get; init; }
+    public DbSet<MeasurementPerQuarterHour> MeasurementsPerQuarterHour { get; init; }
+    public DbSet<MeasurementPerHour> MeasurementsPerHour { get; init; }
+    public DbSet<MeasurementPerDay> MeasurementsPerDay { get; init; }
+    public DbSet<MeasurementPerWeek> MeasurementsPerWeek { get; init; }
     public DbSet<Policy> Policies { get; init; }
     public DbSet<PolicyRequest> PolicyRequests { get; init; }
 
@@ -27,6 +33,11 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new MeasurementConfiguration());
+        modelBuilder.ApplyConfiguration(new MeasurementPerMinuteConfiguration());
+        modelBuilder.ApplyConfiguration(new MeasurementPerQuarterHourConfiguration());
+        modelBuilder.ApplyConfiguration(new MeasurementPerHourConfiguration());
+        modelBuilder.ApplyConfiguration(new MeasurementPerDayConfiguration());
+        modelBuilder.ApplyConfiguration(new MeasurementPerWeekConfiguration());
         modelBuilder.ApplyConfiguration(new MetadataConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyRequestConfiguration());
@@ -35,7 +46,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 
     public async Task SeedTestData()
     {
-        SmartMeterId smartMeter1Id = new(Guid.NewGuid());
+        SmartMeterId smartMeter1Id = new(Guid.Parse("070dec95-56bb-4154-a2c4-c26faf9fff4d"));
         Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Oceania),
             4, smartMeter1Id);

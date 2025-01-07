@@ -13,6 +13,36 @@ public class Location(string? streetName, string? city, string? state, string? c
     public string? Country { get; } = country;
     public Continent? Continent { get; } = continent;
 
+    public LocationResolution GetLocationResolution()
+    {
+        if (StreetName != null)
+        {
+            return LocationResolution.StreetName;
+        }
+
+        if (City != null)
+        {
+            return LocationResolution.City;
+        }
+
+        if (State != null)
+        {
+            return LocationResolution.State;
+        }
+
+        if (Country != null)
+        {
+            return LocationResolution.Country;
+        }
+
+        if (Continent != null)
+        {
+            return LocationResolution.Continent;
+        }
+
+        return LocationResolution.None;
+    }
+
     [ExcludeFromCodeCoverage]
     protected override IEnumerable<object> GetEqualityComponents()
     {

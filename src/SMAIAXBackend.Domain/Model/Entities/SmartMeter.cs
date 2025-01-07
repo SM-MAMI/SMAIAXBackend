@@ -49,6 +49,7 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
         Id = smartMeterId;
         ConnectorSerialNumber = connectorSerialNumber;
         PublicKey = publicKey;
+        Metadata = [];
     }
 
     private SmartMeter(SmartMeterId smartMeterId, string name, List<Metadata> metadata, ConnectorSerialNumber connectorSerialNumber, string publicKey)
