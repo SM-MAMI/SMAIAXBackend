@@ -3,7 +3,7 @@ using SMAIAXBackend.Application.DTOs;
 
 namespace SMAIAXBackend.API.Endpoints.DeviceConfig;
 
-public static class  DeviceConfigEndpoints
+public static class DeviceConfigEndpoints
 {
     public static WebApplication MapDeviceConfigEndpoints(this WebApplication app)
     {

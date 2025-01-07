@@ -103,7 +103,7 @@ public class VaultRepository : IVaultRepository
         secret.Data.Data.TryGetValue("topic", out var topic);
         secret.Data.Data.TryGetValue("username", out var username);
         secret.Data.Data.TryGetValue("password", out var password);
-        
+
         return (username?.ToString(), password?.ToString(), topic?.ToString());
     }
 }

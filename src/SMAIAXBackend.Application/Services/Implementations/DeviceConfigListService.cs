@@ -29,8 +29,8 @@ public class DeviceConfigListService(
 
         var deviceConfigDto = new DeviceConfigDto(
             encryptionService.Encrypt(username, smartMeter.PublicKey),
-            encryptionService.Encrypt(password, smartMeter.PublicKey), 
-            topic, 
+            encryptionService.Encrypt(password, smartMeter.PublicKey),
+            topic,
             smartMeter.PublicKey);
 
         return deviceConfigDto;
