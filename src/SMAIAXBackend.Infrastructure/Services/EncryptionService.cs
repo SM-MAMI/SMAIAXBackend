@@ -1,22 +1,27 @@
-﻿using SMAIAXBackend.Application.Services.Interfaces;
+﻿using System.Security.Cryptography;
+using System.Text;
 
-namespace SMAIAXBackend.Infrastructure.Services;
+using SMAIAXBackend.Application.Services.Interfaces;
 
-public class EncryptionService : IEncryptionService
+namespace SMAIAXBackend.Infrastructure.Services
 {
-    public (string PublicKey, string PrivateKey) GenerateKeys()
+    public class EncryptionService : IEncryptionService
     {
-        using var rsa = new System.Security.Cryptography.RSACryptoServiceProvider(4096);
-        string publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
-        string privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
-        return (publicKey, privateKey);
-    }
+        public (string PublicKey, string PrivateKey) GenerateKeys()
+        {
+            using var rsa = RSA.Create(4096);
+            string publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+            string privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+            return (publicKey, privateKey);
+        }
 
-    public string Encrypt(string data, string publicKey)
-    {
-        using var rsa = new System.Security.Cryptography.RSACryptoServiceProvider(4098);
-        rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
-        var encryptedData = rsa.Encrypt(System.Text.Encoding.UTF8.GetBytes(data), false);
-        return Convert.ToBase64String(encryptedData);
+        public string Encrypt(string data, string publicKey)
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
+
+            var encryptedData = rsa.Encrypt(Encoding.UTF8.GetBytes(data), RSAEncryptionPadding.OaepSHA256);
+            return Convert.ToBase64String(encryptedData);
+        }
     }
 }
