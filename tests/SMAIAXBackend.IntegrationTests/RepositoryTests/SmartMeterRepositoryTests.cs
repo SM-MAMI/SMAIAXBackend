@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 namespace SMAIAXBackend.IntegrationTests.RepositoryTests;
@@ -33,14 +34,16 @@ public class SmartMeterRepositoryTests : TestBase
     public async Task GivenSmartMetersInRepository_WhenGetSmartMetersByUserId_ThenExpectedSmartMetersAreReturned()
     {
         // Given
-        var smartMetersExpected = new List<SmartMeter>()
+        var smartMetersExpected = new List<SmartMeter>
         {
             SmartMeter.Create(new SmartMeterId(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd")), "Smart Meter 1", []),
-            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", [])
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", []),
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b")), new ConnectorSerialNumber(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d")), "")
         };
+        smartMetersExpected = smartMetersExpected.OrderBy(sm => sm.Id.Id).ToList();
 
         // When
-        var smartMetersActual = await _smartMeterRepository.GetSmartMetersAsync();
+        var smartMetersActual = (await _smartMeterRepository.GetSmartMetersAsync()).OrderBy(sm => sm.Id.Id).ToList();
 
         // Then
         Assert.That(smartMetersActual, Is.Not.Null);
@@ -72,6 +75,26 @@ public class SmartMeterRepositoryTests : TestBase
         {
             Assert.That(smartMeterActual.Id, Is.EqualTo(smartMeterExpected.Id));
             Assert.That(smartMeterActual.Name, Is.EqualTo(smartMeterExpected.Name));
+        });
+    }
+
+    [Test]
+    public async Task GivenSmartMeterInRepository_WhenGetSmartMeterBySerialNumber_ThenExpectedSmartMeterIsReturned()
+    {
+        // Given
+        var smartMeterIdExpected = new SmartMeterId(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b"));
+        var smartMeterSerialNumberExpected = new ConnectorSerialNumber(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d"));
+        var smartMeterExpected = SmartMeter.Create(smartMeterIdExpected, smartMeterSerialNumberExpected, "");
+
+        // When
+        var smartMeterActual = await _smartMeterRepository.GetSmartMeterBySerialNumberAsync(smartMeterSerialNumberExpected);
+
+        // Then
+        Assert.That(smartMeterActual, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(smartMeterActual.Id, Is.EqualTo(smartMeterExpected.Id));
+            Assert.That(smartMeterActual.ConnectorSerialNumber, Is.EqualTo(smartMeterSerialNumberExpected));
         });
     }
 

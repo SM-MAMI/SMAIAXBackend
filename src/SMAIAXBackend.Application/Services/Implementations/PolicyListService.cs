@@ -82,7 +82,7 @@ public class PolicyListService(
         var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(policy.SmartMeterId);
         if (smartMeter == null)
         {
-            throw new SmartMeterNotFoundException(policy.SmartMeterId.Id);
+            throw new SmartMeterNotFoundException(policy.SmartMeterId);
         }
 
         var metadata = smartMeter.Metadata.OrderBy(m => m.ValidFrom).ToList();

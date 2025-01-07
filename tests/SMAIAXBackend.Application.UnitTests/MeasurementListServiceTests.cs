@@ -89,7 +89,7 @@ public class MeasurementListServiceTests
         var endAt = DateTime.UtcNow.AddHours(1);
 
         _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId))
-            .ThrowsAsync(new SmartMeterNotFoundException(smartMeterId));
+            .ThrowsAsync(new SmartMeterNotFoundException(new SmartMeterId(smartMeterId)));
 
         // When ... Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>
@@ -105,7 +105,7 @@ public class MeasurementListServiceTests
         var smartMeterId = Guid.NewGuid();
 
         _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId))
-            .ThrowsAsync(new SmartMeterNotFoundException(smartMeterId));
+            .ThrowsAsync(new SmartMeterNotFoundException(new SmartMeterId(smartMeterId)));
 
         // When ... Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>

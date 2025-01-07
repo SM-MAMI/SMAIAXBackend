@@ -31,7 +31,7 @@ public class SmartMeterUpdateService(
         if (smartMeter == null)
         {
             logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterIdExpected);
-            throw new SmartMeterNotFoundException(smartMeterIdExpected);
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterIdExpected));
         }
 
         smartMeter.Update(smartMeterUpdateDto.Name);
@@ -56,7 +56,7 @@ public class SmartMeterUpdateService(
         if (smartMeter == null)
         {
             logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterId);
-            throw new SmartMeterNotFoundException(smartMeterId);
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
         }
 
         var policies = await policyRepository.GetPoliciesBySmartMeterIdAsync(smartMeter.Id);

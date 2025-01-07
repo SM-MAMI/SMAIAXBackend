@@ -25,10 +25,10 @@ public static class SmartMeterEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("/", AddSmartMeterEndpoint.Handle)
-            .WithName("addSmartMeter")
-            .Accepts<SmartMeterCreateDto>(contentType)
-            .Produces<Guid>(StatusCodes.Status201Created, contentType)
+        group.MapPost("/", AssignSmartMeterEndpoint.Handle)
+            .WithName("assignSmartMeter")
+            .Accepts<SmartMeterAssignDto>(contentType)
+            .Produces<Guid>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status500InternalServerError);

@@ -23,7 +23,7 @@ public class PolicyCreateService(
         if (smartMeter == null)
         {
             logger.LogError("Smart meter with id '{SmartMeterId} not found.", policyCreateDto.SmartMeterId);
-            throw new SmartMeterNotFoundException(policyCreateDto.SmartMeterId);
+            throw new SmartMeterNotFoundException(new SmartMeterId(policyCreateDto.SmartMeterId));
         }
 
         var latestMetadata = smartMeter.Metadata.OrderByDescending(m => m.ValidFrom).FirstOrDefault();

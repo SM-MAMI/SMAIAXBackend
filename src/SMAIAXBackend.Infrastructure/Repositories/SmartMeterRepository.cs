@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Infrastructure.DbContexts;
@@ -37,6 +38,13 @@ public class SmartMeterRepository(TenantDbContext tenantDbContext) : ISmartMeter
         return await tenantDbContext.SmartMeters
             .Include(sm => sm.Metadata)
             .FirstOrDefaultAsync(sm => sm.Id.Equals(smartMeterId));
+    }
+
+    public async Task<SmartMeter?> GetSmartMeterBySerialNumberAsync(ConnectorSerialNumber serialNumber)
+    {
+        return await tenantDbContext.SmartMeters
+            .Include(sm => sm.Metadata)
+            .FirstOrDefaultAsync(sm => sm.ConnectorSerialNumber.Equals(serialNumber));
     }
 
     public async Task UpdateAsync(SmartMeter smartMeter)
