@@ -14,7 +14,7 @@ public class EncryptionService : IEncryptionService
 
     public string Encrypt(string data, string publicKey)
     {
-        using var rsa = new System.Security.Cryptography.RSACryptoServiceProvider();
+        using var rsa = new System.Security.Cryptography.RSACryptoServiceProvider(4098);
         rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
         var encryptedData = rsa.Encrypt(System.Text.Encoding.UTF8.GetBytes(data), false);
         return Convert.ToBase64String(encryptedData);
