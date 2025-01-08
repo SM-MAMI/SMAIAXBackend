@@ -14,7 +14,7 @@ public static class DeviceConfigEndpoints
 
         group.MapGet("/", GetDeviceConfigEndpoint.Handle)
             .WithName("getDeviceConfig")
-            .Produces<List<PolicyDto>>(StatusCodes.Status200OK, contentType)
+            .Produces<DeviceConfigDto>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
