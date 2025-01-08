@@ -30,6 +30,7 @@ public class SmartMeterRepository(TenantDbContext tenantDbContext) : ISmartMeter
     {
         return await tenantDbContext.SmartMeters
             .Include(sm => sm.Metadata)
+            .Where(smartMeter => !String.IsNullOrEmpty(smartMeter.Name))
             .ToListAsync();
     }
 
