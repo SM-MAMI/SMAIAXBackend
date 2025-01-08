@@ -45,13 +45,6 @@ public class SmartMeterCreateService(
             smartMeter.AddMetadata(metadata);
         }
 
-        // TODO: Remove this check and add a validation attribute to the DTO
-        if (String.IsNullOrEmpty(smartMeterAssignDto.Name))
-        {
-            logger.LogError("Smart meter name is required.");
-            throw new SmartMeterNameRequiredException();
-        }
-
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
             smartMeter.Update(smartMeterAssignDto.Name);
