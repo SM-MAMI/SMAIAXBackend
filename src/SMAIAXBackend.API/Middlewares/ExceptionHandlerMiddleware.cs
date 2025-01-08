@@ -20,6 +20,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
             case PolicyRequestNotFoundException:
             case PolicyNotFoundException:
             case SmartMeterNotFoundException:
+            case DeviceConfigNotFoundException:
             case UserNotFoundException:
                 problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5";
                 problemDetails.Status = StatusCodes.Status404NotFound;
@@ -48,6 +49,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
             case SmartMeterIdMismatchException:
             case InsufficientLocationDataException:
             case PolicyNameMissingException:
+            case SmartMeterNameRequiredException:
                 problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Bad Request";

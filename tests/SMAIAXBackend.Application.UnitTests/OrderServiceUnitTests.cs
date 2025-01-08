@@ -18,7 +18,7 @@ public class OrderServiceUnitTests
     private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
     private Mock<IMqttBrokerRepository> _mqttBrokerRepositoryMock;
     private Mock<IVaultRepository> _vaultRepositoryMock;
-    private Mock<IKeyGenerationService> _keyGenerationServiceMock;
+    private Mock<IEncryptionService> _keyGenerationServiceMock;
     private Mock<ITransactionManager> _transactionManagerMock;
     private OrderService _orderService;
 
@@ -28,7 +28,7 @@ public class OrderServiceUnitTests
         _smartMeterRepositoryMock = new Mock<ISmartMeterRepository>();
         _mqttBrokerRepositoryMock = new Mock<IMqttBrokerRepository>();
         _vaultRepositoryMock = new Mock<IVaultRepository>();
-        _keyGenerationServiceMock = new Mock<IKeyGenerationService>();
+        _keyGenerationServiceMock = new Mock<IEncryptionService>();
         _transactionManagerMock = new Mock<ITransactionManager>();
         _orderService = new OrderService(_smartMeterRepositoryMock.Object,
             _mqttBrokerRepositoryMock.Object, _vaultRepositoryMock.Object, _keyGenerationServiceMock.Object,

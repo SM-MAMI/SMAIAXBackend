@@ -9,8 +9,7 @@ namespace SMAIAXBackend.API.Endpoints.Order;
 public static class OrderSmartMeterConnectorEndpoint
 {
     public static async Task<Ok<SerialNumberDto>> Handle(
-        IOrderService orderService,
-        IKeyGenerationService keyGenerationService)
+        IOrderService orderService)
     {
         var connectorSerialNumber = await orderService.OrderSmartMeterConnectorAsync();
 

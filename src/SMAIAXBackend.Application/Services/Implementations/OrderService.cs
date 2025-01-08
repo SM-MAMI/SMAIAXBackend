@@ -10,7 +10,7 @@ public class OrderService(
     ISmartMeterRepository smartMeterRepository,
     IMqttBrokerRepository mqttBrokerRepository,
     IVaultRepository vaultRepository,
-    IKeyGenerationService keyGenerationService,
+    IEncryptionService encryptionService,
     ITransactionManager transactionManager) : IOrderService
 {
     public async Task<ConnectorSerialNumber> OrderSmartMeterConnectorAsync()
@@ -20,7 +20,7 @@ public class OrderService(
 
         //We would now trigger a process of burning the private key into the fuse of the connector for the smart meter
         //This however was out of scope for the project, therefore the private key is not used at this place
-        var (publicKey, privateKey) = keyGenerationService.GenerateKeys();
+        var (publicKey, privateKey) = encryptionService.GenerateKeys();
 
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {

@@ -45,6 +45,12 @@ public class SmartMeterCreateService(
             smartMeter.AddMetadata(metadata);
         }
 
+        if (String.IsNullOrEmpty(smartMeterCreateDto.Name))
+        {
+            logger.LogError("Smart meter name is required.");
+            throw new SmartMeterNameRequiredException();
+        }
+
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
             smartMeter.Update(smartMeterAssignDto.Name);
