@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using SMAIAXBackend.API.ApplicationConfigurations;
 using SMAIAXBackend.API.Endpoints.Authentication;
+using SMAIAXBackend.API.Endpoints.DeviceConfig;
 using SMAIAXBackend.API.Endpoints.Measurement;
 using SMAIAXBackend.API.Endpoints.Order;
 using SMAIAXBackend.API.Endpoints.Policy;
@@ -96,6 +97,7 @@ app.UseExceptionHandler();
 app.MapAuthenticationEndpoints()
     .MapSmartMeterEndpoints()
     .MapPolicyEndpoints()
+    .MapDeviceConfigEndpoints()
     .MapOrderEndpoints()
     .MapMeasurementEndpoints();
 

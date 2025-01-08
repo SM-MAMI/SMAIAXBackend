@@ -21,6 +21,7 @@ public static class ServiceExtensions
         services.AddScoped<ISmartMeterUpdateService, SmartMeterUpdateService>();
         services.AddScoped<ISmartMeterDeleteService, SmartMeterDeleteService>();
         services.AddScoped<IOrderService, OrderService>();
-        services.AddTransient<IKeyGenerationService, KeyGenerationService>();
+        services.AddScoped<IDeviceConfigListService, DeviceConfigListService>();
+        services.AddTransient<IEncryptionService, EncryptionService>();
     }
 }
