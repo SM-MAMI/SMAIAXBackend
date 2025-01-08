@@ -24,7 +24,7 @@ public class DeviceConfigListService(
         var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(new SmartMeterId(id));
         if (smartMeter == null)
         {
-            throw new SmartMeterNotFoundException(id);
+            throw new SmartMeterNotFoundException(new SmartMeterId(id));
         }
 
         var deviceConfigDto = new DeviceConfigDto(

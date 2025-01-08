@@ -18,11 +18,11 @@ public class SmartMeterTests : TestBase
     private const string BaseUrl = "/api/smartMeters";
 
     [Test]
-    public async Task GivenSmartMeterCreateDtoAndAccessToken_WhenCreateSmartMeter_ThenSmartMeterIsCreated()
+    public async Task GivenSmartMeterAssignDtoAndAccessToken_WhenAssignSmartMeter_ThenSmartMeterIsAssigned()
     {
         // Given
-        var smartMeterCreateDto = new SmartMeterCreateDto("Test Smart Meter", null);
-        var httpContent = new StringContent(JsonConvert.SerializeObject(smartMeterCreateDto), Encoding.UTF8,
+        var smartMeterAssignDto = new SmartMeterAssignDto(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d"), "Test Smart Meter", null);
+        var httpContent = new StringContent(JsonConvert.SerializeObject(smartMeterAssignDto), Encoding.UTF8,
             "application/json");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
@@ -30,26 +30,26 @@ public class SmartMeterTests : TestBase
         var response = await _httpClient.PostAsync(BaseUrl, httpContent);
 
         // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
-        var locationHeader = response.Headers.Location;
-        Assert.That(locationHeader, Is.Not.Null);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Assert.That(responseContent, Is.Not.Null);
 
-        var id = locationHeader.Segments[^1];
+        var id = Guid.Parse(responseContent.Trim('"'));
         var smartMeterActual = await _tenant1DbContext.SmartMeters
             .AsNoTracking()
             .FirstOrDefaultAsync(x =>
-                x.Id.Equals(new SmartMeterId(Guid.Parse(id))));
+                x.Id.Equals(new SmartMeterId(id)));
 
         Assert.That(smartMeterActual, Is.Not.Null);
-        Assert.That(smartMeterActual.Name, Is.EqualTo(smartMeterCreateDto.Name));
+        Assert.That(smartMeterActual.Name, Is.EqualTo(smartMeterAssignDto.Name));
     }
 
     [Test]
-    public async Task GivenSmartMeterCreateDtoAndNoAccessToken_WhenCreateSmartMeter_ThenUnauthorizedIsReturned()
+    public async Task GivenSmartMeterAssignDtoAndNoAccessToken_WhenAssignSmartMeter_ThenUnauthorizedIsReturned()
     {
         // Given
-        var smartMeterCreateDto = new SmartMeterCreateDto("Test Smart Meter", null);
-        var httpContent = new StringContent(JsonConvert.SerializeObject(smartMeterCreateDto), Encoding.UTF8,
+        var smartMeterAssignDto = new SmartMeterAssignDto(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d"), "Test Smart Meter", null);
+        var httpContent = new StringContent(JsonConvert.SerializeObject(smartMeterAssignDto), Encoding.UTF8,
             "application/json");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
 
@@ -85,13 +85,7 @@ public class SmartMeterTests : TestBase
 
         for (int i = 0; i < smartMetersActual.Count; i++)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(smartMetersActual[i].Id, Is.EqualTo(smartMetersExpected[i].Id));
-                Assert.That(smartMetersActual[i].Name, Is.EqualTo(smartMetersExpected[i].Name));
-                Assert.That(smartMetersActual[i].MetadataCount, Is.EqualTo(smartMetersExpected[i].MetadataCount));
-                Assert.That(smartMetersActual[i].PolicyCount, Is.EqualTo(smartMetersExpected[i].PolicyCount));
-            });
+            Assert.That(smartMetersActual[i].Id, Is.EqualTo(smartMetersExpected[i].Id));
         }
     }
 

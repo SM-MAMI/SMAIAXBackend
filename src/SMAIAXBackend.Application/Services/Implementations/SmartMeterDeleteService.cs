@@ -19,7 +19,7 @@ public class SmartMeterDeleteService(
         if (smartMeter == null)
         {
             logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterId);
-            throw new SmartMeterNotFoundException(smartMeterId);
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
         }
 
         try

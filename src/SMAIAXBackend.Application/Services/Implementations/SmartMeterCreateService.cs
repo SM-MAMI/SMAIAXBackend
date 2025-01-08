@@ -18,47 +18,46 @@ public class SmartMeterCreateService(
     ITransactionManager transactionManager,
     ILogger<SmartMeterCreateService> logger) : ISmartMeterCreateService
 {
-    public async Task<Guid> AddSmartMeterAsync(SmartMeterCreateDto smartMeterCreateDto)
+    public async Task<Guid> AssignSmartMeterAsync(SmartMeterAssignDto smartMeterAssignDto)
     {
-        var smartMeterId = smartMeterRepository.NextIdentity();
+        var smartMeter =
+            await smartMeterRepository.GetSmartMeterBySerialNumberAsync(
+                new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
 
-        var metadataList = new List<Metadata>();
-        if (smartMeterCreateDto.Metadata != null)
+        if (smartMeter == null)
+        {
+            logger.LogError("Smart meter with id '{SerialNumber} not found.", smartMeterAssignDto.SerialNumber);
+            throw new SmartMeterNotFoundException(new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
+        }
+
+        if (smartMeterAssignDto.Metadata != null)
         {
             var metadataId = smartMeterRepository.NextMetadataIdentity();
-            var locationDto = smartMeterCreateDto.Metadata.Location;
+            var locationDto = smartMeterAssignDto.Metadata.Location;
             var location = locationDto != null
                 ? new Location(locationDto.StreetName,
                     locationDto.City,
                     locationDto.State, locationDto.Country,
                     locationDto.Continent)
                 : null;
-            var metadata = Metadata.Create(metadataId, smartMeterCreateDto.Metadata.ValidFrom, location,
-                smartMeterCreateDto.Metadata.HouseholdSize, smartMeterId);
-
-            metadataList.Add(metadata);
-        }
-
-        if (String.IsNullOrEmpty(smartMeterCreateDto.Name))
-        {
-            logger.LogError("Smart meter name is required.");
-            throw new SmartMeterNameRequiredException();
+            var metadata = Metadata.Create(metadataId, smartMeterAssignDto.Metadata.ValidFrom, location,
+                smartMeterAssignDto.Metadata.HouseholdSize, smartMeter.Id);
+            smartMeter.AddMetadata(metadata);
         }
 
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
-            var smartMeter = SmartMeter.Create(smartMeterId, smartMeterCreateDto.Name, metadataList);
-            await smartMeterRepository.AddAsync(smartMeter);
+            smartMeter.Update(smartMeterAssignDto.Name);
+            await smartMeterRepository.UpdateAsync(smartMeter);
 
-            string topic = $"smartmeter/{smartMeterId}";
-            string username = $"smartmeter-{smartMeterId}";
+            string topic = $"smartmeter/{smartMeter.Id.Id}";
+            string username = $"smartmeter-{smartMeter.Id.Id}";
             string password = $"{Guid.NewGuid()}-{Guid.NewGuid()}";
-            await vaultRepository.SaveMqttBrokerCredentialsAsync(smartMeterId, topic, username, password);
+            await vaultRepository.SaveMqttBrokerCredentialsAsync(smartMeter.Id, topic, username, password);
             await mqttBrokerRepository.CreateMqttUserAsync(topic, username, password);
         });
 
-
-        return smartMeterId.Id;
+        return smartMeter.Id.Id;
     }
 
     public async Task<Guid> AddMetadataAsync(Guid smartMeterId, MetadataCreateDto metadataCreateDto)
@@ -69,7 +68,7 @@ public class SmartMeterCreateService(
         if (smartMeter == null)
         {
             logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterId);
-            throw new SmartMeterNotFoundException(smartMeterId);
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
         }
 
         var metadataId = smartMeterRepository.NextMetadataIdentity();

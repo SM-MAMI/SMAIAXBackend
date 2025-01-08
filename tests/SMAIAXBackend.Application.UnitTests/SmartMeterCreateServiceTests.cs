@@ -38,39 +38,58 @@ public class SmartMeterCreateServiceTests
     }
 
     [Test]
-    public async Task GivenSmartMeterCreateDto_WhenAddSmartMeter_ThenSmartMeterIdIsReturned()
+    public async Task GivenSmartMeterAssignDto_WhenAssignSmartMeter_ThenSmartMeterIdIsReturned()
     {
         // Given
+        var serialNumber = new ConnectorSerialNumber(Guid.NewGuid());
         var smartMeterIdExpected = new SmartMeterId(Guid.NewGuid());
-        var smartMeterCreateDto = new SmartMeterCreateDto("Test Smart Meter", null);
+        var smartMeter = SmartMeter.Create(smartMeterIdExpected, serialNumber, "");
+        var smartMeterAssignDto = new SmartMeterAssignDto(serialNumber.SerialNumber, "Test Smart Meter", null);
 
-        _smartMeterRepositoryMock.Setup(repo => repo.NextIdentity()).Returns(smartMeterIdExpected);
+        _smartMeterRepositoryMock.Setup(repo => repo.GetSmartMeterBySerialNumberAsync(serialNumber)).ReturnsAsync(smartMeter);
 
         // When
         var smartMeterIdActual =
-            await _smartMeterCreateService.AddSmartMeterAsync(smartMeterCreateDto);
+            await _smartMeterCreateService.AssignSmartMeterAsync(smartMeterAssignDto);
 
         // Then
         Assert.That(smartMeterIdActual, Is.EqualTo(smartMeterIdExpected.Id));
     }
 
     [Test]
-    public async Task GivenSmartMeterCreateDtoWithMetadata_WhenAddSmartMeter_ThenSmartMeterIdIsReturned()
+    public async Task GivenSmartMeterAssignDtoWithMetadata_WhenAssignSmartMeter_ThenSmartMeterIdIsReturned()
     {
         // Given
+        var serialNumber = new ConnectorSerialNumber(Guid.NewGuid());
         var smartMeterIdExpected = new SmartMeterId(Guid.NewGuid());
-        var smartMeterCreateDto = new SmartMeterCreateDto("Test Smart Meter",
+        var smartMeter = SmartMeter.Create(smartMeterIdExpected, serialNumber, "");
+        var smartMeterAssignDto = new SmartMeterAssignDto(serialNumber.SerialNumber, "Test Smart Meter",
             new MetadataCreateDto(DateTime.UtcNow,
                 new LocationDto("Test Street", "Test City", "Test State", "Test Country", Continent.Europe), 1));
 
-        _smartMeterRepositoryMock.Setup(repo => repo.NextIdentity()).Returns(smartMeterIdExpected);
+        _smartMeterRepositoryMock.Setup(repo => repo.GetSmartMeterBySerialNumberAsync(serialNumber)).ReturnsAsync(smartMeter);
 
         // When
         var smartMeterIdActual =
-            await _smartMeterCreateService.AddSmartMeterAsync(smartMeterCreateDto);
+            await _smartMeterCreateService.AssignSmartMeterAsync(smartMeterAssignDto);
 
         // Then
         Assert.That(smartMeterIdActual, Is.EqualTo(smartMeterIdExpected.Id));
+    }
+
+    [Test]
+    public void GivenSmartMeterAssignDto_WhenAssignSmartMeter_ThenSmartMeterNotFoundExceptionIsThrown()
+    {
+        // Given
+        var serialNumber = new ConnectorSerialNumber(Guid.NewGuid());
+        var smartMeterCreateDto = new SmartMeterAssignDto(serialNumber.SerialNumber, "Test Smart Meter", null);
+
+        _smartMeterRepositoryMock.Setup(repo => repo.GetSmartMeterBySerialNumberAsync(serialNumber))
+            .ReturnsAsync((SmartMeter)null!);
+
+        // When ... Then
+        Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>
+            await _smartMeterCreateService.AssignSmartMeterAsync(smartMeterCreateDto));
     }
 
     [Test]
@@ -108,7 +127,7 @@ public class SmartMeterCreateServiceTests
         _smartMeterRepositoryMock.Setup(repo => repo.GetSmartMeterByIdAsync(smartMeterId))
             .ReturnsAsync((SmartMeter)null!);
 
-        // Then ... Then
+        // When ... Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>
             await _smartMeterCreateService.AddMetadataAsync(smartMeterId.Id, metadataCreateDto));
     }
