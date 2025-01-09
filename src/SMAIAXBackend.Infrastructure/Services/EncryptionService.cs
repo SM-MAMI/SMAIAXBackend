@@ -11,33 +11,27 @@ namespace SMAIAXBackend.Infrastructure.Services
     {
         public (string PublicKey, string PrivateKey) GenerateKeys()
         {
-            using var rsa = RSA.Create(4096);
-            string publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
-            string privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
-            return (publicKey, privateKey);
+            using var rsaCsp = new RSACryptoServiceProvider(4096);
+            try
+            {
+                string publicKey = rsaCsp.ToXmlString(false);
+                string privateKey = rsaCsp.ToXmlString(true);
+                return (publicKey, privateKey);
+            }
+            finally
+            {
+                rsaCsp.PersistKeyInCsp = false;
+            }
         }
+
 
         public string Encrypt(string data, string publicKey)
         {
-            RSACryptoServiceProvider rsaCsp = new RSACryptoServiceProvider(4069);
-            StringReader sr = new System.IO.StringReader(publicKey);
-            XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-            var deserializedSr = xs.Deserialize(sr);
-            RSAParameters pubKey;
-            if (deserializedSr != null)
-            {
-                pubKey = (RSAParameters)deserializedSr;
-            }
-            else
-            {
-                throw new DeserializationException("Could not deserialize public key", null);
-            }
+            using var rsaCsp = new RSACryptoServiceProvider(4096);
 
-            rsaCsp.ImportParameters(pubKey);
+            rsaCsp.FromXmlString(publicKey);
 
-            UnicodeEncoding byteConverter = new UnicodeEncoding();
-
-            byte[] dataToEncrypt = byteConverter.GetBytes(data);
+            byte[] dataToEncrypt = Encoding.UTF8.GetBytes(data);
 
             byte[] encryptedData = rsaCsp.Encrypt(dataToEncrypt, true);
 
