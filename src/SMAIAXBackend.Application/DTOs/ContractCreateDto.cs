@@ -2,8 +2,7 @@
 
 namespace SMAIAXBackend.Application.DTOs;
 
-public class ContractCreateDto(Guid policyId, Guid userId)
+public class ContractCreateDto(Guid policyId)
 {
     [Required] public Guid PolicyId { get; set; } = policyId;
-    [Required] public Guid UserId { get; set; } = userId;
 }

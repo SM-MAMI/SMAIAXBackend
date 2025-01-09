@@ -10,7 +10,6 @@ namespace SMAIAXBackend.Application.Services.Implementations;
 public class ContractCreateService(
     IContractRepository contractRepository,
     IPolicyRepository policyRepository,
-    IUserRepository userRepository,
     ITenantRepository tenantRepository,
     ITenantContextService tenantContextService
 ) : IContractCreateService
@@ -32,16 +31,9 @@ public class ContractCreateService(
         {
             throw new PolicyNotFoundException(contractCreateDto.PolicyId);
         }
-
-        var user = await userRepository.GetUserByIdAsync(new UserId(contractCreateDto.UserId));
-        if (user == null)
-        {
-            throw new UserNotFoundException(contractCreateDto.UserId);
-        }
-
+        
         var createdAt = DateTime.UtcNow;
-        var contract = Contract.Create(contractId, createdAt, new PolicyId(contractCreateDto.PolicyId),
-            new UserId(contractCreateDto.UserId));
+        var contract = Contract.Create(contractId, createdAt, new PolicyId(contractCreateDto.PolicyId));
         await contractRepository.AddAsync(contract);
 
         return contractId.Id;
