@@ -31,7 +31,7 @@ public class ContractCreateService(
         {
             throw new PolicyNotFoundException(contractCreateDto.PolicyId);
         }
-        
+
         var createdAt = DateTime.UtcNow;
         var contract = Contract.Create(contractId, createdAt, new PolicyId(contractCreateDto.PolicyId));
         await contractRepository.AddAsync(contract);
