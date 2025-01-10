@@ -23,7 +23,9 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
 
     public static SmartMeter Create(SmartMeterId smartMeterId, ConnectorSerialNumber connectorSerialNumber, string publicKey)
     {
-        return new SmartMeter(smartMeterId, connectorSerialNumber, publicKey);
+        TimeSpan t = DateTime.UtcNow - DateTime.UnixEpoch;
+        int secondsSinceEpoch = (int)t.TotalSeconds;
+        return new SmartMeter(smartMeterId, secondsSinceEpoch.ToString() ,connectorSerialNumber, publicKey);
     }
 
     public static SmartMeter Create(SmartMeterId smartMeterId, string name, List<Metadata> metadata, ConnectorSerialNumber connectorSerialNumber, string publicKey)
@@ -42,6 +44,13 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
         Id = smartMeterId;
         Name = name;
         Metadata = metadata;
+    }    
+    private SmartMeter(SmartMeterId smartMeterId, string name, ConnectorSerialNumber connectorSerialNumber, string publicKey)
+    {
+        Id = smartMeterId;
+        Name = name;
+        ConnectorSerialNumber = connectorSerialNumber;
+        PublicKey = publicKey;
     }
 
     private SmartMeter(SmartMeterId smartMeterId, ConnectorSerialNumber connectorSerialNumber, string publicKey)
