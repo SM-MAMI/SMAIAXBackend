@@ -12,7 +12,7 @@ public sealed class SmartMeter : IEquatable<SmartMeter>
 
     public ConnectorSerialNumber ConnectorSerialNumber { get; private set; } = new ConnectorSerialNumber(Guid.Empty);
     public string Name { get; private set; } = "";
-    public List<Metadata> Metadata { get; }
+    public List<Metadata> Metadata { get; } = new List<Metadata>();
 
     public string PublicKey { get; private set; } = null!;
 
