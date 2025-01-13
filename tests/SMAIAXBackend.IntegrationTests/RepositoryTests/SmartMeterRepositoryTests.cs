@@ -36,8 +36,9 @@ public class SmartMeterRepositoryTests : TestBase
         // Given
         var smartMetersExpected = new List<SmartMeter>
         {
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b")), "Smart Meter 01", []),
             SmartMeter.Create(new SmartMeterId(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd")), "Smart Meter 1", []),
-            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", [])
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", []),
         };
 
         // When
@@ -45,7 +46,16 @@ public class SmartMeterRepositoryTests : TestBase
 
         // Then
         Assert.That(smartMetersActual, Is.Not.Null);
-        Assert.That(smartMetersActual, Has.Count.EqualTo(smartMetersExpected.Count + 1)); // +1 because of the seed data
+        Assert.That(smartMetersActual, Has.Count.EqualTo(smartMetersExpected.Count));
+
+        for (int i = 0; i < smartMetersActual.Count; i++)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(smartMetersActual[i].Id, Is.EqualTo(smartMetersExpected[i].Id));
+                Assert.That(smartMetersActual[i].Name, Is.EqualTo(smartMetersExpected[i].Name));
+            });
+        }
     }
 
     [Test]
