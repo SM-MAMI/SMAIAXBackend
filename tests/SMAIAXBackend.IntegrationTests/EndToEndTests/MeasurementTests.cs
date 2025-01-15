@@ -33,7 +33,7 @@ public class MeasurementTests : TestBase
         var responseContent = await response.Content.ReadAsStringAsync();
         Assert.That(responseContent, Is.Not.Null);
 
-        var measurements = JsonConvert.DeserializeObject<List<MeasurementDto>>(responseContent);
+        var measurements = JsonConvert.DeserializeObject(responseContent);
         Assert.That(measurements, Has.Count.EqualTo(1));
     }
 

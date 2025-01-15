@@ -23,17 +23,20 @@ public class PolicyListServiceTests
     private PolicyListService _policyListService;
     private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
     private Mock<IMeasurementListService> _measurementListServiceMock;
+    private Mock<IMeasurementRepository> _measurementRepositoryMock;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        _tenantContextServiceMock = new Mock<ITenantContextService>();
         _policyRepositoryMock = new Mock<IPolicyRepository>();
         _smartMeterRepositoryMock = new Mock<ISmartMeterRepository>();
         _tenantRepositoryMock = new Mock<ITenantRepository>();
         _measurementListServiceMock = new Mock<IMeasurementListService>();
-        _tenantContextServiceMock = new Mock<ITenantContextService>();
-        _policyListService = new PolicyListService(_policyRepositoryMock.Object, _smartMeterRepositoryMock.Object,
-            _tenantRepositoryMock.Object, _measurementListServiceMock.Object, _tenantContextServiceMock.Object,
+        _measurementRepositoryMock = new Mock<IMeasurementRepository>();
+        _policyListService = new PolicyListService(_tenantRepositoryMock.Object, _smartMeterRepositoryMock.Object,
+            _measurementRepositoryMock.Object, _policyRepositoryMock.Object, _measurementListServiceMock.Object,
+            _tenantContextServiceMock.Object,
             Mock.Of<ILogger<PolicyListService>>());
     }
 
@@ -203,19 +206,20 @@ public class PolicyListServiceTests
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
         var measurementsExpected = new List<MeasurementDto>()
         {
-            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
+            new MeasurementDto(DateTime.UtcNow, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         };
         _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
                 MeasurementResolution.Hour,
                 new List<(DateTime?, DateTime?)>() { new ValueTuple<DateTime?, DateTime?>(validFrom, null) }))
-            .ReturnsAsync(measurementsExpected);
+            .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(1));
+        Assert.That(countActual, Is.EqualTo(5));
     }
 
     [Test]
@@ -232,18 +236,19 @@ public class PolicyListServiceTests
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
         var measurementsExpected = new List<MeasurementDto>()
         {
-            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
+            new MeasurementDto(DateTime.UtcNow, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         };
         _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
                 MeasurementResolution.Hour, null))
-            .ReturnsAsync(measurementsExpected);
+            .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(1));
+        Assert.That(countActual, Is.EqualTo(5));
     }
 
     [Test]
@@ -258,20 +263,14 @@ public class PolicyListServiceTests
             .ReturnsAsync(policy);
         var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
-        var measurementsExpected = new List<MeasurementDto>()
-        {
-            new MeasurementDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", DateTime.UtcNow)
-        };
-        _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
-                MeasurementResolution.Hour, null))
-            .ReturnsAsync(measurementsExpected);
 
         // When
-        var measurementsActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(0));
+        Assert.That(countActual, Is.EqualTo(0));
     }
 
     [Test]

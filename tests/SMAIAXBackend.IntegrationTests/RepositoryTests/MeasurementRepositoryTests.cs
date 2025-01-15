@@ -21,12 +21,13 @@ public class MeasurementRepositoryTests : TestBase
         var endAt = DateTime.UtcNow;
 
         // When
-        var measurementsActual =
+        var (measurementsActual, countActual) =
             await _measurementRepository.GetMeasurementsBySmartMeterAsync(smartMeterId, startAt, endAt);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(1));
+        Assert.That(countActual, Is.EqualTo(1));
         Assert.That(measurementsActual[0].SmartMeterId, Is.EqualTo(smartMeterId));
     }
 
@@ -39,12 +40,13 @@ public class MeasurementRepositoryTests : TestBase
         var endAt = DateTime.UtcNow;
 
         // When
-        var measurementsActual =
+        var (measurementsActual, countActual) =
             await _measurementRepository.GetMeasurementsBySmartMeterAsync(smartMeterId, startAt, endAt);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Is.Empty);
+        Assert.That(countActual, Is.EqualTo(0));
     }
 
     [Test]
@@ -56,12 +58,13 @@ public class MeasurementRepositoryTests : TestBase
         var startAt = DateTime.UtcNow;
 
         // When
-        var measurementsActual =
+        var (measurementsActual, countActual) =
             await _measurementRepository.GetMeasurementsBySmartMeterAsync(smartMeterId, startAt, endAt);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Is.Empty);
+        Assert.That(countActual, Is.EqualTo(0));
     }
 
     [Test]
@@ -71,12 +74,13 @@ public class MeasurementRepositoryTests : TestBase
         var smartMeterId = new SmartMeterId(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd"));
 
         // When
-        var measurementsActual =
+        var (measurementsActual, countActual) =
             await _measurementRepository.GetMeasurementsBySmartMeterAsync(smartMeterId, null, null);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(1));
+        Assert.That(countActual, Is.EqualTo(1));
     }
 
     [Test]
@@ -105,12 +109,14 @@ public class MeasurementRepositoryTests : TestBase
             date10, date11);
 
         // When
-        var measurementsActual =
-            await _measurementRepository.GetMeasurementsPerMinuteBySmartMeterAsync(smartMeterId, start, end);
+        var (measurementsActual, countActual) =
+            await _measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId,
+                MeasurementResolution.Minute, start, end);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(expectedMeasurementsCount));
+        Assert.That(countActual, Is.EqualTo(expectedMeasurementsCount));
     }
 
     [Test]
@@ -140,12 +146,14 @@ public class MeasurementRepositoryTests : TestBase
             date10);
 
         // When
-        var measurementsActual =
-            await _measurementRepository.GetMeasurementsPerQuarterHourBySmartMeterAsync(smartMeterId, start, end);
+        var (measurementsActual, countActual) =
+            await _measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId,
+                MeasurementResolution.QuarterHour, start, end);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(expectedMeasurementsCount));
+        Assert.That(countActual, Is.EqualTo(expectedMeasurementsCount));
     }
 
     [Test]
@@ -174,12 +182,14 @@ public class MeasurementRepositoryTests : TestBase
             date10);
 
         // When
-        var measurementsActual =
-            await _measurementRepository.GetMeasurementsPerHourBySmartMeterAsync(smartMeterId, start, end);
+        var (measurementsActual, countActual) =
+            await _measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId,
+                MeasurementResolution.Hour, start, end);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(expectedMeasurementsCount));
+        Assert.That(countActual, Is.EqualTo(expectedMeasurementsCount));
     }
 
     [Test]
@@ -208,12 +218,14 @@ public class MeasurementRepositoryTests : TestBase
             date10);
 
         // When
-        var measurementsActual =
-            await _measurementRepository.GetMeasurementsPerDayBySmartMeterAsync(smartMeterId, start, end);
+        var (measurementsActual, countActual) =
+            await _measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId,
+                MeasurementResolution.Day, start, end);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(expectedMeasurementsCount));
+        Assert.That(countActual, Is.EqualTo(expectedMeasurementsCount));
     }
 
     [Test]
@@ -242,12 +254,14 @@ public class MeasurementRepositoryTests : TestBase
             date10);
 
         // When
-        var measurementsActual =
-            await _measurementRepository.GetMeasurementsPerWeekBySmartMeterAsync(smartMeterId, start, end);
+        var (measurementsActual, countActual) =
+            await _measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId,
+                MeasurementResolution.Week, start, end);
 
         // Then
         Assert.That(measurementsActual, Is.Not.Null);
         Assert.That(measurementsActual, Has.Count.EqualTo(expectedMeasurementsCount));
+        Assert.That(countActual, Is.EqualTo(expectedMeasurementsCount));
     }
 
 
