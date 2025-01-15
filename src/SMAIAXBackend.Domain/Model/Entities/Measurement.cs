@@ -1,8 +1,8 @@
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
-namespace SMAIAXBackend.Domain.Model.Entities.Measurements;
+namespace SMAIAXBackend.Domain.Model.Entities;
 
-public abstract class MeasurementBase
+public sealed class Measurement
 {
     public double PositiveActivePower { get; }
     public double PositiveActiveEnergyTotal { get; }

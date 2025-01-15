@@ -6,14 +6,16 @@ namespace SMAIAXBackend.Application.Services.Interfaces;
 public interface IMeasurementListService
 {
     /// <summary>
-    ///     Get the time-filtered measurements of a tenant by smart meter.
+    ///     Get the time-filtered measurements of a tenant by smart meter and resolution.
     /// </summary>
     /// <param name="smartMeterId">The specific smart meter id.</param>
-    /// <param name="startAt">Timestamp filter. Data with a timestamp newer/greater than or equal to startAt will be returned.</param>
-    /// <param name="endAt">Timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be returned.</param>
+    /// <param name="measurementResolution">The resolution in which the measurements should be returned.</param>
+    /// <param name="startAt">Optional timestamp filter. Data with a timestamp newer/greater than or equal to startAt will be returned.</param>
+    /// <param name="endAt">Optional timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be returned.</param>
     /// <returns>All measurements between given limitations</returns>
-    Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAsync(Guid smartMeterId,
-        DateTime startAt, DateTime endAt);
+    Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+        MeasurementResolution measurementResolution,
+        DateTime? startAt, DateTime? endAt);
 
     /// <summary>
     /// Get the time-filtered measurements of a tenant by smart meter and resolution.
