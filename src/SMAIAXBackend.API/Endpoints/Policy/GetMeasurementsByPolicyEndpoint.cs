@@ -12,7 +12,7 @@ public static class GetMeasurementsByPolicyEndpoint
         IPolicyListService policyListService,
         [FromRoute] Guid id)
     {
-        var measurements = await policyListService.GetMeasurementsByPolicyIdAsync(id);
+        var (measurements, _) = await policyListService.GetMeasurementsByPolicyIdAsync(id);
         return TypedResults.Ok(measurements);
     }
 }

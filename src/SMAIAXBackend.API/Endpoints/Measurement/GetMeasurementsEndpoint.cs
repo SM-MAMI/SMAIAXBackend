@@ -14,7 +14,7 @@ public static class GetMeasurementsEndpoint
         [FromQuery] MeasurementResolution? measurementResolution,
         [FromQuery] DateTime? startAt, [FromQuery] DateTime? endAt)
     {
-        var measurements = await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId,
+        var (measurements, _) = await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId,
             measurementResolution ?? MeasurementResolution.Raw, startAt, endAt);
 
         return TypedResults.Ok(measurements);

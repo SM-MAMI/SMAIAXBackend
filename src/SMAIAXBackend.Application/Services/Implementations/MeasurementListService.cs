@@ -12,14 +12,14 @@ public class MeasurementListService(
     IMeasurementRepository measurementRepository,
     ISmartMeterListService smartMeterListService) : IMeasurementListService
 {
-    public async Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(
+    public async Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(
         Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
     {
         return await GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId, measurementResolution,
             new List<(DateTime?, DateTime?)> { (startAt, endAt) });
     }
 
-    public async Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+    public async Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
         IList<(DateTime?, DateTime?)>? timeSpans = null)
     {
@@ -52,7 +52,7 @@ public class MeasurementListService(
                 count += currentCount;
             }
 
-            return measurements.Select(MeasurementDto.FromMeasurement).ToList();
+            return (measurements.Select(MeasurementDto.FromMeasurement).ToList(), count);
         }
         else
         {
@@ -61,14 +61,14 @@ public class MeasurementListService(
             foreach (var span in timeSpans)
             {
                 var (currentMeasurements, currentCount) =
-                    await measurementRepository.GetMeasurementsBySmartMeterAndResolutionAsync(
+                    await measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(
                         new SmartMeterId(smartMeterId), measurementResolution, span.Item1,
                         span.Item2);
                 aggregateMeasurements.AddRange(currentMeasurements);
                 count += currentCount;
             }
 
-            return aggregateMeasurements.Select(MeasurementDto.FromAggregateMeasurement).ToList();
+            return (aggregateMeasurements.Select(MeasurementDto.FromAggregatedMeasurement).ToList(), count);
         }
     }
 }

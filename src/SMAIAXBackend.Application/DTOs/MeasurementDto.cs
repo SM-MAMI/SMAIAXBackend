@@ -201,7 +201,7 @@ public class MeasurementDto(
             measurement.CurrentPhase2, measurement.VoltagePhase2, measurement.CurrentPhase3, measurement.VoltagePhase3);
     }
 
-    public static MeasurementDto FromAggregateMeasurement(AggregatedMeasurement measurement)
+    public static MeasurementDto FromAggregatedMeasurement(AggregatedMeasurement measurement)
     {
         return new MeasurementDto(
             measurement.Timestamp,

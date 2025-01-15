@@ -1,6 +1,8 @@
 using System.Data;
+using System.Data.Common;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 using Npgsql;
 
@@ -8,13 +10,40 @@ using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
+using SMAIAXBackend.Infrastructure.Configurations;
 using SMAIAXBackend.Infrastructure.DbContexts;
 
 namespace SMAIAXBackend.Infrastructure.Repositories;
 
 public class MeasurementRepository(
-    TenantDbContext tenantDbContext) : IMeasurementRepository
+    TenantDbContext tenantDbContext,
+    ITenantDbContextFactory tenantDbContextFactory,
+    IOptions<DatabaseConfiguration> databaseConfigOptions) : IMeasurementRepository
 {
+    public async Task<int> GetMeasurementCountBySmartMeterAndResolution(Tenant? tenant, SmartMeterId smartMeterId,
+        MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
+    {
+        var tenantSpecificDbContext = tenant != null ? tenantDbContextFactory.CreateDbContext(tenant.DatabaseName,
+            databaseConfigOptions.Value.SuperUsername, databaseConfigOptions.Value.SuperUserPassword) : tenantDbContext;
+
+        await using var command = tenantSpecificDbContext.Database.GetDbConnection().CreateCommand();
+        var tableName = GetTableName(measurementResolution);
+        var sqlQuery = $"""
+                        SELECT COUNT(*)
+                        FROM "domain".{tableName}
+                        WHERE "smartMeterId" = @smartMeterId AND (@startAt IS NULL OR "timestamp" >= @startAt) AND (@endAt IS NULL OR "timestamp" <= @endAt)
+                        """;
+        AssignToCommand(command, sqlQuery, smartMeterId, startAt, endAt);
+
+        await tenantSpecificDbContext.Database.OpenConnectionAsync();
+
+        var count = await command.ExecuteScalarAsync();
+
+        await tenantSpecificDbContext.Database.CloseConnectionAsync();
+
+        return (int)Convert.ToInt64(count);
+    }
+
     public async Task<(List<Measurement>, int)> GetMeasurementsBySmartMeterAsync(SmartMeterId smartMeterId,
         DateTime? startAt,
         DateTime? endAt)
@@ -27,7 +56,7 @@ public class MeasurementRepository(
         return (await query.ToListAsync(), await query.CountAsync());
     }
 
-    public async Task<(List<AggregatedMeasurement>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(
+    public async Task<(List<AggregatedMeasurement>, int)> GetAggregatedMeasurementsBySmartMeterAsync(
         SmartMeterId smartMeterId,
         MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
     {
@@ -94,19 +123,13 @@ public class MeasurementRepository(
                         """;
 
         await using var command = tenantDbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = sqlQuery;
-        command.Parameters.Add(new NpgsqlParameter("@smartMeterId", smartMeterId.Id));
-        command.Parameters.Add(new NpgsqlParameter("@startAt", NpgsqlTypes.NpgsqlDbType.TimestampTz)
-        {
-            Value = startAt ?? (object)DBNull.Value
-        });
-        command.Parameters.Add(new NpgsqlParameter("@endAt", NpgsqlTypes.NpgsqlDbType.TimestampTz)
-        {
-            Value = endAt ?? (object)DBNull.Value
-        });
+        AssignToCommand(command, sqlQuery, smartMeterId, startAt, endAt);
+
         await tenantDbContext.Database.OpenConnectionAsync();
+
         await using var result = await command.ExecuteReaderAsync();
         var aggregatedMeasurements = new List<AggregatedMeasurement>();
+        var count = 0;
         while (await result.ReadAsync())
         {
             var measurement = new AggregatedMeasurement(
@@ -195,13 +218,13 @@ public class MeasurementRepository(
                 // Measurements
                 amountOfMeasurements: result.GetInt32("amountOfMeasurements")
             );
-
             aggregatedMeasurements.Add(measurement);
+            count += 1;
         }
 
         await tenantDbContext.Database.CloseConnectionAsync();
 
-        return (aggregatedMeasurements, aggregatedMeasurements.Count);
+        return (aggregatedMeasurements, count);
     }
 
     private static string GetTableName(MeasurementResolution measurementResolution)
@@ -219,9 +242,26 @@ public class MeasurementRepository(
             case MeasurementResolution.Week:
                 return "\"MeasurementPerWeek\"";
             case MeasurementResolution.Raw:
+                return "\"Measurement\"";
             default:
                 throw new ArgumentException("Resolution RAW is not supported for this method.",
                     nameof(measurementResolution));
         }
+    }
+
+    private static void AssignToCommand(DbCommand command, string sqlQuery, SmartMeterId smartMeterId,
+        DateTime? startAt,
+        DateTime? endAt)
+    {
+        command.CommandText = sqlQuery;
+        command.Parameters.Add(new NpgsqlParameter("@smartMeterId", smartMeterId.Id));
+        command.Parameters.Add(new NpgsqlParameter("@startAt", NpgsqlTypes.NpgsqlDbType.TimestampTz)
+        {
+            Value = startAt ?? (object)DBNull.Value
+        });
+        command.Parameters.Add(new NpgsqlParameter("@endAt", NpgsqlTypes.NpgsqlDbType.TimestampTz)
+        {
+            Value = endAt ?? (object)DBNull.Value
+        });
     }
 }

@@ -13,7 +13,7 @@ public interface IMeasurementListService
     /// <param name="startAt">Optional timestamp filter. Data with a timestamp newer/greater than or equal to startAt will be returned.</param>
     /// <param name="endAt">Optional timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be returned.</param>
     /// <returns>All measurements between given limitations</returns>
-    Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+    Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
         DateTime? startAt, DateTime? endAt);
 
@@ -25,6 +25,6 @@ public interface IMeasurementListService
     /// <param name="timeSpans">List of datetime tuples where the first value represents the start time and the second value represents the end time.
     /// If time-spans are null, then all data will be returned.</param>
     /// <returns>All measurements in the specified resolution and the given limitations.</returns>
-    Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+    Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution, IList<(DateTime?, DateTime?)>? timeSpans = null);
 }
