@@ -15,7 +15,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public DbSet<SmartMeter> SmartMeters { get; init; }
     public DbSet<Measurement> Measurements { get; init; }
     public DbSet<Policy> Policies { get; init; }
-    public DbSet<PolicyRequest> PolicyRequests { get; init; }
+    public DbSet<Contract> Contracts { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -29,8 +29,8 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         modelBuilder.ApplyConfiguration(new MeasurementConfiguration());
         modelBuilder.ApplyConfiguration(new MetadataConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyConfiguration());
-        modelBuilder.ApplyConfiguration(new PolicyRequestConfiguration());
         modelBuilder.ApplyConfiguration(new SmartMeterConfiguration());
+        modelBuilder.ApplyConfiguration(new ContractConfiguration());
     }
 
     public async Task SeedTestData()

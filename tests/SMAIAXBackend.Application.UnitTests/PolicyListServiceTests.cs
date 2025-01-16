@@ -154,7 +154,7 @@ public class PolicyListServiceTests
         _policyRepositoryMock.Setup(repo => repo.GetPoliciesByTenantAsync(tenants[1])).ReturnsAsync([]);
 
         // When
-        var policiesActual = await _policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution);
+        var policiesActual = await _policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution, null);
 
         // Then
         Assert.That(policiesActual, Is.Not.Null);
@@ -179,7 +179,7 @@ public class PolicyListServiceTests
         _policyRepositoryMock.Setup(repo => repo.GetPoliciesByTenantAsync(It.IsAny<Tenant>())).ReturnsAsync([]);
 
         // When
-        var policiesActual = await _policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution);
+        var policiesActual = await _policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution, null);
 
         // Then
         Assert.That(policiesActual, Is.Not.Null);

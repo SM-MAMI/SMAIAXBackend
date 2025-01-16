@@ -12,6 +12,8 @@ public static class RepositoryExtensions
 {
     public static void AddRepositoryConfigurations(this IServiceCollection services)
     {
+        services.AddScoped<IMeasurementRepository, MeasurementRepository>();
+        services.AddScoped<IPolicyRepository, PolicyRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<ITokenRepository, TokenRepository>();
         services.AddScoped<ITransactionManager, TransactionManager>();
@@ -19,5 +21,6 @@ public static class RepositoryExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPolicyRepository, PolicyRepository>();
         services.AddScoped<IMeasurementRepository, MeasurementRepository>();
+        services.AddScoped<IContractRepository, ContractRepository>();
     }
 }

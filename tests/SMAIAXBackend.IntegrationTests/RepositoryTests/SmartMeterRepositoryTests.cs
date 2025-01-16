@@ -36,8 +36,9 @@ public class SmartMeterRepositoryTests : TestBase
         // Given
         var smartMetersExpected = new List<SmartMeter>
         {
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b")), "Smart Meter 01", []),
             SmartMeter.Create(new SmartMeterId(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd")), "Smart Meter 1", []),
-            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", [])
+            SmartMeter.Create(new SmartMeterId(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39")), "Smart Meter 2", []),
         };
 
         // When
@@ -82,7 +83,7 @@ public class SmartMeterRepositoryTests : TestBase
         // Given
         var smartMeterIdExpected = new SmartMeterId(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b"));
         var smartMeterSerialNumberExpected = new ConnectorSerialNumber(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d"));
-        var smartMeterExpected = SmartMeter.Create(smartMeterIdExpected, smartMeterSerialNumberExpected, "");
+        var smartMeterExpected = SmartMeter.Create(smartMeterIdExpected, "Smart Meter Test", smartMeterSerialNumberExpected, "");
 
         // When
         var smartMeterActual = await _smartMeterRepository.GetSmartMeterBySerialNumberAsync(smartMeterSerialNumberExpected);

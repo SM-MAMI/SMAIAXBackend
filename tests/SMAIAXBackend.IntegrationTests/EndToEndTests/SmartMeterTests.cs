@@ -66,8 +66,9 @@ public class SmartMeterTests : TestBase
         // Given
         var smartMetersExpected = new List<SmartMeterOverviewDto>()
         {
+            new(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b"), "Smart Meter 01", 0, 0),
             new(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd"), "Smart Meter 1", 0, 0),
-            new(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), "Smart Meter 2", 1, 0)
+            new(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), "Smart Meter 2", 1, 0),
         };
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
