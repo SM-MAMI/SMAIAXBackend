@@ -12,14 +12,14 @@ public class MeasurementListService(
     IMeasurementRepository measurementRepository,
     ISmartMeterListService smartMeterListService) : IMeasurementListService
 {
-    public async Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(
+    public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(
         Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
     {
         return await GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId, measurementResolution,
             new List<(DateTime?, DateTime?)> { (startAt, endAt) });
     }
 
-    public async Task<(List<MeasurementDto>, int)> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+    public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
         IList<(DateTime?, DateTime?)>? timeSpans = null)
     {
@@ -52,7 +52,7 @@ public class MeasurementListService(
                 count += currentCount;
             }
 
-            return (measurements.Select(MeasurementDto.FromMeasurement).ToList(), count);
+            return new MeasurementListDto(measurements.Select(MeasurementRawDto.FromMeasurement).ToList(), null, count);
         }
         else
         {
@@ -68,7 +68,8 @@ public class MeasurementListService(
                 count += currentCount;
             }
 
-            return (aggregateMeasurements.Select(MeasurementDto.FromAggregatedMeasurement).ToList(), count);
+            return new MeasurementListDto(null,
+                aggregateMeasurements.Select(MeasurementAggregatedDto.FromAggregatedMeasurement).ToList(), count);
         }
     }
 }

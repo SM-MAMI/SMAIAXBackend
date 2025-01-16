@@ -36,7 +36,7 @@ public static class PolicyEndpoints
 
         group.MapGet("/{id:guid}/measurements", GetMeasurementsByPolicyEndpoint.Handle)
             .WithName("getMeasurementsByPolicy")
-            .Produces<List<MeasurementDto>>(StatusCodes.Status200OK, contentType)
+            .Produces<MeasurementListDto>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status500InternalServerError);

@@ -204,22 +204,20 @@ public class PolicyListServiceTests
         };
         var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", metadata);
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
-        var measurementsExpected = new List<MeasurementDto>()
-        {
-            new MeasurementDto(DateTime.UtcNow, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        };
+        var measurementListDtoExpected = new MeasurementListDto(null, [], 5);
         _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
                 MeasurementResolution.Hour,
                 new List<(DateTime?, DateTime?)>() { new ValueTuple<DateTime?, DateTime?>(validFrom, null) }))
-            .ReturnsAsync((measurementsExpected, 5));
+            .ReturnsAsync(measurementListDtoExpected);
 
         // When
-        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(1));
-        Assert.That(countActual, Is.EqualTo(5));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Is.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Is.Empty);
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
@@ -234,21 +232,19 @@ public class PolicyListServiceTests
             .ReturnsAsync(policy);
         var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
-        var measurementsExpected = new List<MeasurementDto>()
-        {
-            new MeasurementDto(DateTime.UtcNow, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        };
+        var measurementListDtoExpected = new MeasurementListDto(null, [], 5);
         _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
                 MeasurementResolution.Hour, null))
-            .ReturnsAsync((measurementsExpected, 5));
+            .ReturnsAsync(measurementListDtoExpected);
 
         // When
-        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(1));
-        Assert.That(countActual, Is.EqualTo(5));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Is.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Is.Empty);
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
@@ -265,12 +261,13 @@ public class PolicyListServiceTests
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
 
         // When
-        var (measurementsActual, countActual) = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(0));
-        Assert.That(countActual, Is.EqualTo(0));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Is.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Is.Empty);
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(0));
     }
 
     [Test]

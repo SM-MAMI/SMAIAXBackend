@@ -9,14 +9,14 @@ namespace SMAIAXBackend.API.Endpoints.Measurement;
 
 public static class GetMeasurementsEndpoint
 {
-    public static async Task<Ok<List<MeasurementDto>>> Handle(IMeasurementListService measurementListService,
+    public static async Task<Ok<MeasurementListDto>> Handle(IMeasurementListService measurementListService,
         [FromQuery] Guid smartMeterId,
         [FromQuery] MeasurementResolution? measurementResolution,
         [FromQuery] DateTime? startAt, [FromQuery] DateTime? endAt)
     {
-        var (measurements, _) = await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId,
+        var measurementList = await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId,
             measurementResolution ?? MeasurementResolution.Raw, startAt, endAt);
 
-        return TypedResults.Ok(measurements);
+        return TypedResults.Ok(measurementList);
     }
 }

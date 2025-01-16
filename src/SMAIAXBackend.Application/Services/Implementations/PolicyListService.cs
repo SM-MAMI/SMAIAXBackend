@@ -75,7 +75,7 @@ public class PolicyListService(
         return matchingPolicies;
     }
 
-    public async Task<(List<MeasurementDto>, int)> GetMeasurementsByPolicyIdAsync(Guid policyId)
+    public async Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId)
     {
         var policy = await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId));
         if (policy == null)
@@ -102,7 +102,9 @@ public class PolicyListService(
         if (metadata.Count == 0)
         {
             // If no metadata given, policy location resolution can not match because there is no location reference for the measurements.
-            return ([], 0);
+            return policy.MeasurementResolution != MeasurementResolution.Raw
+                ? new MeasurementListDto(null, [], 0)
+                : new MeasurementListDto([], null, 0);
         }
 
         var timeSpans = new List<(DateTime?, DateTime?)>();

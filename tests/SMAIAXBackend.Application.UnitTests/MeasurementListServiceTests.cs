@@ -44,14 +44,15 @@ public class MeasurementListServiceTests
             .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var (measurementsActual, countActual) =
+        var measurementListActual =
             await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
                 MeasurementResolution.Raw, startAt, endAt);
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(measurementsExpected.Count));
-        Assert.That(countActual, Is.EqualTo(5));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Is.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
@@ -73,14 +74,15 @@ public class MeasurementListServiceTests
             .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var (measurementsActual, countActual) =
-            await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
-                MeasurementResolution.Hour, new List<(DateTime?, DateTime?)>() { (startAt, endAt) });
+        var measurementListActual = await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(
+            smartMeterId.Id,
+            MeasurementResolution.Hour, new List<(DateTime?, DateTime?)>() { (startAt, endAt) });
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(measurementsExpected.Count));
-        Assert.That(countActual, Is.EqualTo(5));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Is.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
