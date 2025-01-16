@@ -120,8 +120,8 @@ public class PolicyListService(
         if (policy.LocationResolution == LocationResolution.None)
         {
             // If location resolution "does not matter", filter for all measurements.
-            return await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(tenant, policy.SmartMeterId,
-                policy.MeasurementResolution, null, null);
+            return await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
+                policy.MeasurementResolution, null, null, tenant);
         }
 
         // Otherwise location resolution must match with metadata.
@@ -152,9 +152,8 @@ public class PolicyListService(
             var nextIndex = i + 1;
             DateTime? startAt = metadata[i].ValidFrom;
             DateTime? endAt = nextIndex >= metadata!.Count ? null : metadata[i + 1].ValidFrom;
-            count += await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(tenant,
-                policy.SmartMeterId,
-                policy.MeasurementResolution, startAt, endAt);
+            count += await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
+                policy.MeasurementResolution, startAt, endAt, tenant);
         }
 
         return count;
@@ -166,7 +165,7 @@ public class PolicyListService(
         foreach (var policy in policies)
         {
             var measurementCount =
-                await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(null, policy.SmartMeterId,
+                await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
                     policy.MeasurementResolution, null, null);
             policyDtoList.Add(PolicyDto.FromPolicy(policy, measurementCount));
         }
