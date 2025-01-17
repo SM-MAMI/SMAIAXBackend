@@ -1,4 +1,6 @@
-﻿namespace SMAIAXBackend.Application.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SMAIAXBackend.Application.DTOs;
 
 public class MeasurementListDto(
     List<MeasurementRawDto>? measurementRawDto,
@@ -7,5 +9,7 @@ public class MeasurementListDto(
 {
     public List<MeasurementRawDto>? MeasurementRawList { get; set; } = measurementRawDto;
     public List<MeasurementAggregatedDto>? MeasurementAggregatedList { get; set; } = measurementAggregatedDto;
+
+    [Required]
     public int AmountOfMeasurements { get; set; } = amountOfMeasurements;
 }
