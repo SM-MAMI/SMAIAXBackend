@@ -32,9 +32,11 @@ public class MeasurementTests : TestBase
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         var responseContent = await response.Content.ReadAsStringAsync();
         Assert.That(responseContent, Is.Not.Null);
-
-        var measurements = JsonConvert.DeserializeObject<List<MeasurementDto>>(responseContent);
-        Assert.That(measurements, Has.Count.EqualTo(1));
+        var measurementList = JsonConvert.DeserializeObject<MeasurementListDto>(responseContent);
+        Assert.That(measurementList, Is.Not.Null);
+        Assert.That(measurementList.MeasurementAggregatedList, Is.Null);
+        Assert.That(measurementList.MeasurementRawList, Has.Count.EqualTo(1));
+        Assert.That(measurementList.AmountOfMeasurements, Is.EqualTo(1));
     }
 
     [Test]
@@ -52,9 +54,13 @@ public class MeasurementTests : TestBase
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var responseContent = await response.Content.ReadFromJsonAsync<IList<MeasurementDto>>();
+        var responseContent = await response.Content.ReadAsStringAsync();
         Assert.That(responseContent, Is.Not.Null);
-        Assert.That(responseContent, Is.Empty);
+        var measurementList = JsonConvert.DeserializeObject<MeasurementListDto>(responseContent);
+        Assert.That(measurementList, Is.Not.Null);
+        Assert.That(measurementList.MeasurementAggregatedList, Is.Null);
+        Assert.That(measurementList.MeasurementRawList, Is.Empty);
+        Assert.That(measurementList.AmountOfMeasurements, Is.Zero);
     }
 
     [Test]

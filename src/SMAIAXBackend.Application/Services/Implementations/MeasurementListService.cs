@@ -1,7 +1,7 @@
 using SMAIAXBackend.Application.DTOs;
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Interfaces;
-using SMAIAXBackend.Domain.Model.Entities.Measurements;
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
@@ -12,14 +12,14 @@ public class MeasurementListService(
     IMeasurementRepository measurementRepository,
     ISmartMeterListService smartMeterListService) : IMeasurementListService
 {
-    public async Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAsync(
-        Guid smartMeterId, DateTime startAt, DateTime endAt)
+    public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(
+        Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
     {
-        return await GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId, MeasurementResolution.Raw,
+        return await GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId, measurementResolution,
             new List<(DateTime?, DateTime?)> { (startAt, endAt) });
     }
 
-    public async Task<List<MeasurementDto>> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
+    public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
         IList<(DateTime?, DateTime?)>? timeSpans = null)
     {
@@ -40,71 +40,36 @@ public class MeasurementListService(
             }
         }
 
-        var measurements = new List<MeasurementBase>();
-        switch (measurementResolution)
+        if (measurementResolution == MeasurementResolution.Raw)
         {
-            case MeasurementResolution.Minute:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsPerMinuteBySmartMeterAsync(
-                            new SmartMeterId(smartMeterId), span.Item1,
-                            span.Item2));
-                }
+            var measurements = new List<Measurement>();
+            var count = 0;
+            foreach (var span in timeSpans)
+            {
+                var (currentMeasurements, currentCount) = await measurementRepository.GetMeasurementsBySmartMeterAsync(
+                    new SmartMeterId(smartMeterId), span.Item1, span.Item2);
+                measurements.AddRange(currentMeasurements);
+                count += currentCount;
+            }
 
-                break;
-            case MeasurementResolution.QuarterHour:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsPerQuarterHourBySmartMeterAsync(
-                            new SmartMeterId(smartMeterId),
-                            span.Item1, span.Item2));
-                }
-
-                break;
-            case MeasurementResolution.Hour:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsPerHourBySmartMeterAsync(
-                            new SmartMeterId(smartMeterId), span.Item1,
-                            span.Item2));
-                }
-
-                break;
-            case MeasurementResolution.Day:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsPerDayBySmartMeterAsync(
-                            new SmartMeterId(smartMeterId), span.Item1,
-                            span.Item2));
-                }
-
-                break;
-            case MeasurementResolution.Week:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsPerWeekBySmartMeterAsync(
-                            new SmartMeterId(smartMeterId), span.Item1,
-                            span.Item2));
-                }
-
-                break;
-            default:
-                foreach (var span in timeSpans)
-                {
-                    measurements.AddRange(
-                        await measurementRepository.GetMeasurementsBySmartMeterAsync(new SmartMeterId(smartMeterId),
-                            span.Item1,
-                            span.Item2));
-                }
-
-                break;
+            return new MeasurementListDto(measurements.Select(MeasurementRawDto.FromMeasurement).ToList(), null, count);
         }
+        else
+        {
+            var aggregateMeasurements = new List<AggregatedMeasurement>();
+            var count = 0;
+            foreach (var span in timeSpans)
+            {
+                var (currentMeasurements, currentCount) =
+                    await measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(
+                        new SmartMeterId(smartMeterId), measurementResolution, span.Item1,
+                        span.Item2);
+                aggregateMeasurements.AddRange(currentMeasurements);
+                count += currentCount;
+            }
 
-        return measurements.Select(MeasurementDto.FromMeasurement).ToList();
+            return new MeasurementListDto(null,
+                aggregateMeasurements.Select(MeasurementAggregatedDto.FromAggregatedMeasurement).ToList(), count);
+        }
     }
 }

@@ -114,8 +114,10 @@ internal static class IntegrationTestSetup
 
         // Repositories that are using the TenantDatabase need to be instantiated because
         // They are injected with a connection string that is created based on the http request
-        SmartMeterRepository = new SmartMeterRepository(Tenant1DbContext);
-        MeasurementRepository = new MeasurementRepository(Tenant1DbContext);
+        SmartMeterRepository =
+            new SmartMeterRepository(Tenant1DbContext, tenantDbContextFactory, databaseConfigOptions);
+        MeasurementRepository =
+            new MeasurementRepository(Tenant1DbContext, tenantDbContextFactory, databaseConfigOptions);
         PolicyRepository = new PolicyRepository(Tenant1DbContext, tenantDbContextFactory, databaseConfigOptions);
 
         var tokenRepository = _webAppFactory.Services.GetRequiredService<ITokenRepository>();

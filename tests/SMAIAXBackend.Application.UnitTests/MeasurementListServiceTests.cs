@@ -4,7 +4,7 @@ using SMAIAXBackend.Application.DTOs;
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Implementations;
 using SMAIAXBackend.Application.Services.Interfaces;
-using SMAIAXBackend.Domain.Model.Entities.Measurements;
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
@@ -41,15 +41,18 @@ public class MeasurementListServiceTests
         _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
         _measurementRepositoryMock
             .Setup(x => x.GetMeasurementsBySmartMeterAsync(smartMeterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-            .ReturnsAsync(measurementsExpected);
+            .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var measurementsActual =
-            await _measurementListService.GetMeasurementsBySmartMeterAsync(smartMeterId.Id, startAt, endAt);
+        var measurementListActual =
+            await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
+                MeasurementResolution.Raw, startAt, endAt);
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Is.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
@@ -61,22 +64,25 @@ public class MeasurementListServiceTests
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
         var smartMeterDto = new SmartMeterDto(smartMeterId.Id, "my smart meter", []);
-        var measurementsExpected = new List<MeasurementPerHour> { new() };
+        var measurementsExpected = new List<AggregatedMeasurement>();
 
         _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
         _measurementRepositoryMock
-            .Setup(x => x.GetMeasurementsPerHourBySmartMeterAsync(smartMeterId, It.IsAny<DateTime>(),
+            .Setup(x => x.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId, MeasurementResolution.Hour,
+                It.IsAny<DateTime>(),
                 It.IsAny<DateTime>()))
-            .ReturnsAsync(measurementsExpected);
+            .ReturnsAsync((measurementsExpected, 5));
 
         // When
-        var measurementsActual =
-            await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
-                MeasurementResolution.Hour, new List<(DateTime?, DateTime?)>() { (startAt, endAt) });
+        var measurementListActual = await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(
+            smartMeterId.Id,
+            MeasurementResolution.Hour, new List<(DateTime?, DateTime?)>() { (startAt, endAt) });
 
         // Then
-        Assert.That(measurementsActual, Is.Not.Null);
-        Assert.That(measurementsActual, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual, Is.Not.Null);
+        Assert.That(measurementListActual.MeasurementRawList, Is.Null);
+        Assert.That(measurementListActual.MeasurementAggregatedList, Has.Count.EqualTo(measurementsExpected.Count));
+        Assert.That(measurementListActual.AmountOfMeasurements, Is.EqualTo(5));
     }
 
     [Test]
@@ -93,7 +99,8 @@ public class MeasurementListServiceTests
 
         // When ... Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(async () =>
-            await _measurementListService.GetMeasurementsBySmartMeterAsync(smartMeterId, startAt, endAt)
+            await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId,
+                It.IsAny<MeasurementResolution>(), startAt, endAt)
         );
     }
 
@@ -128,7 +135,8 @@ public class MeasurementListServiceTests
 
         // When ... Then
         Assert.ThrowsAsync<InvalidTimeRangeException>(async () =>
-            await _measurementListService.GetMeasurementsBySmartMeterAsync(smartMeterId.Id, startAt, endAt)
+            await _measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
+                It.IsAny<MeasurementResolution>(), startAt, endAt)
         );
     }
 

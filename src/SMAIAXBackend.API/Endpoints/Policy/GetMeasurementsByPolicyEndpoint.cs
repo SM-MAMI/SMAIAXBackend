@@ -8,11 +8,11 @@ namespace SMAIAXBackend.API.Endpoints.Policy;
 
 public static class GetMeasurementsByPolicyEndpoint
 {
-    public static async Task<Ok<List<MeasurementDto>>> Handle(
+    public static async Task<Ok<MeasurementListDto>> Handle(
         IPolicyListService policyListService,
         [FromRoute] Guid id)
     {
-        var measurements = await policyListService.GetMeasurementsByPolicyIdAsync(id);
-        return TypedResults.Ok(measurements);
+        var measurementList = await policyListService.GetMeasurementsByPolicyIdAsync(id);
+        return TypedResults.Ok(measurementList);
     }
 }
