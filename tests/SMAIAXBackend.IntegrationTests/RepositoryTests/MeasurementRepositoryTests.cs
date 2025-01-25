@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
+using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 namespace SMAIAXBackend.IntegrationTests.RepositoryTests;
