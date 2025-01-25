@@ -1,6 +1,10 @@
-﻿using SMAIAXBackend.Application.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
+
+using SMAIAXBackend.Application.Exceptions;
+using SMAIAXBackend.Application.Services.Interfaces;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.ValueObjects;
+using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Domain.Repositories.Transactions;
 
@@ -11,6 +15,8 @@ public class OrderService(
     IMqttBrokerRepository mqttBrokerRepository,
     IVaultRepository vaultRepository,
     IEncryptionService encryptionService,
+    IDeviceMappingRepository deviceMappingRepository,
+    IHttpContextAccessor httpContextAccessor,
     ITransactionManager transactionManager) : IOrderService
 {
     public async Task<ConnectorSerialNumber> OrderSmartMeterConnectorAsync()
@@ -34,6 +40,14 @@ public class OrderService(
             string password = $"{Guid.NewGuid()}-{Guid.NewGuid()}";
             await vaultRepository.SaveMqttBrokerCredentialsAsync(smartMeterId, topic, username, password);
             await mqttBrokerRepository.CreateMqttUserAsync(topic, username, password);
+            
+            var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
+            if (userId == null)
+            {
+                throw new UserIdNotFoundException();
+            }
+            var deviceMapping = DeviceMapping.Create(connectorSerialNumber, publicKey, new UserId(Guid.Parse(userId)));
+            await deviceMappingRepository.AddAsync(deviceMapping);
         });
 
         return connectorSerialNumber;
