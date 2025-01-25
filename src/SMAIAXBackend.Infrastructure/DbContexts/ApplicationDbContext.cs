@@ -16,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> DomainUsers { get; init; }
     public DbSet<RefreshToken> RefreshTokens { get; init; }
     public DbSet<Tenant> Tenants { get; init; }
+    public DbSet<Contract> Contracts { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -29,6 +30,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.ApplyConfiguration(new DomainUserConfiguration());
         builder.ApplyConfiguration(new RefreshTokenConfiguration());
         builder.ApplyConfiguration(new TenantConfiguration());
+        builder.ApplyConfiguration(new ContractConfiguration());
 
         // Place Identity tables in the "auth" schema
         builder.Entity<IdentityUser>(entity => entity.ToTable(name: "AspNetUsers", schema: "auth"));

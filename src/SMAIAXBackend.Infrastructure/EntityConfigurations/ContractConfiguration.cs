@@ -27,5 +27,17 @@ public class ContractConfiguration : IEntityTypeConfiguration<Contract>
                 v => v.Id,
                 v => new PolicyId(v))
             .IsRequired();
+
+        builder.Property(c => c.BuyerId)
+            .HasConversion(
+                v => v.Id,
+                v => new TenantId(v))
+            .IsRequired();
+
+        builder.Property(c => c.VendorId)
+            .HasConversion(
+                v => v.Id,
+                v => new TenantId(v))
+            .IsRequired();
     }
 }
