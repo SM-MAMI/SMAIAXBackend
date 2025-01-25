@@ -25,7 +25,7 @@ public class ContractCreateService(
         TenantId? vendorId = null;
         foreach (var tenant in tenants.Where(t => !t.Equals(currentTenant)))
         {
-            policy = await policyRepository.GetPolicyByIdAsync(requiredPolicyId);
+            policy = await policyRepository.GetPolicyByTenantAsync(tenant, requiredPolicyId);
             if (policy == null)
             {
                 continue;

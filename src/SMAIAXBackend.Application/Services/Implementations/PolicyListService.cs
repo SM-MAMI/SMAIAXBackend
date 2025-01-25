@@ -82,7 +82,8 @@ public class PolicyListService(
         if (policy.LocationResolution == LocationResolution.None)
         {
             // If location resolution "does not matter", return all measurements.
-            return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(policy.SmartMeterId.Id, policy.MeasurementResolution);
+            return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(policy.SmartMeterId.Id,
+                policy.MeasurementResolution);
         }
 
         // Otherwise location resolution must match with metadata.

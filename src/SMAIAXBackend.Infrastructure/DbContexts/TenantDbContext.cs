@@ -21,7 +21,6 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public DbSet<MeasurementPerDay> MeasurementsPerDay { get; init; }
     public DbSet<MeasurementPerWeek> MeasurementsPerWeek { get; init; }
     public DbSet<Policy> Policies { get; init; }
-    public DbSet<Contract> Contracts { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

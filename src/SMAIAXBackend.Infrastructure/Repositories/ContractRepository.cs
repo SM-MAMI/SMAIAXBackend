@@ -5,7 +5,7 @@ using SMAIAXBackend.Infrastructure.DbContexts;
 
 namespace SMAIAXBackend.Infrastructure.Repositories;
 
-public class ContractRepository(TenantDbContext tenantDbContext) : IContractRepository
+public class ContractRepository(ApplicationDbContext applicationDbContext) : IContractRepository
 {
     public ContractId NextIdentity()
     {
@@ -14,7 +14,7 @@ public class ContractRepository(TenantDbContext tenantDbContext) : IContractRepo
 
     public async Task AddAsync(Contract contract)
     {
-        await tenantDbContext.Contracts.AddAsync(contract);
-        await tenantDbContext.SaveChangesAsync();
+        await applicationDbContext.Contracts.AddAsync(contract);
+        await applicationDbContext.SaveChangesAsync();
     }
 }

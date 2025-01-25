@@ -40,6 +40,14 @@ public class PolicyRepository(
         return await tenantSpecificDbContext.Policies.ToListAsync();
     }
 
+    public async Task<Policy?> GetPolicyByTenantAsync(Tenant tenant, PolicyId policyId)
+    {
+        var tenantSpecificDbContext = tenantDbContextFactory.CreateDbContext(tenant.DatabaseName,
+            databaseConfigOptions.Value.SuperUsername, databaseConfigOptions.Value.SuperUserPassword);
+
+        return await tenantSpecificDbContext.Policies.FirstOrDefaultAsync(p => p.Id.Equals(policyId));
+    }
+
     public async Task<List<Policy>> GetPoliciesAsync()
     {
         return await tenantDbContext.Policies.ToListAsync();
