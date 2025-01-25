@@ -1,4 +1,6 @@
-﻿using SMAIAXBackend.Domain.Model.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Infrastructure.DbContexts;
@@ -16,5 +18,12 @@ public class ContractRepository(ApplicationDbContext applicationDbContext) : ICo
     {
         await applicationDbContext.Contracts.AddAsync(contract);
         await applicationDbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<Contract>> GetContractsForTenantAsync(TenantId buyerId)
+    {
+        return await applicationDbContext.Contracts
+            .Where(x => x.BuyerId == buyerId)
+            .ToListAsync();
     }
 }
