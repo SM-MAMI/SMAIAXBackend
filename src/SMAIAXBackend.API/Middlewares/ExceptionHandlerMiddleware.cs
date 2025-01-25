@@ -48,6 +48,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
             case MetadataIdMismatchException:
             case SmartMeterIdMismatchException:
             case InsufficientLocationDataException:
+            case InvalidResolutionException:
                 problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Bad Request";

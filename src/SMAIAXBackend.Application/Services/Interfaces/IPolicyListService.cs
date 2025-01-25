@@ -8,6 +8,9 @@ public interface IPolicyListService
 {
     Task<List<PolicyDto>> GetPoliciesBySmartMeterIdAsync(SmartMeterId smartMeterId);
     Task<List<PolicyDto>> GetPoliciesAsync();
-    Task<List<PolicyDto>> GetFilteredPoliciesAsync(decimal? maxPrice, MeasurementResolution? measurementResolution, LocationResolution? locationResolution);
-    Task<List<MeasurementDto>> GetMeasurementsByPolicyIdAsync(Guid policyId);
+
+    Task<List<PolicyDto>> GetFilteredPoliciesAsync(decimal? maxPrice, MeasurementResolution? measurementResolution,
+        LocationResolution? locationResolution);
+
+    Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId);
 }
