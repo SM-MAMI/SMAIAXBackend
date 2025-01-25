@@ -41,7 +41,6 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         modelBuilder.ApplyConfiguration(new MetadataConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyConfiguration());
         modelBuilder.ApplyConfiguration(new SmartMeterConfiguration());
-        modelBuilder.ApplyConfiguration(new ContractConfiguration());
     }
 
     public async Task SeedTestData()

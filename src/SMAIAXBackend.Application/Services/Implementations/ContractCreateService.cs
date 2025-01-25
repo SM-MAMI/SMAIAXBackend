@@ -20,11 +20,19 @@ public class ContractCreateService(
 
         var currentTenant = await tenantContextService.GetCurrentTenantAsync();
         var tenants = await tenantRepository.GetAllAsync();
+        var requiredPolicyId = new PolicyId(contractCreateDto.PolicyId);
         Policy? policy = null;
+        TenantId? vendorId = null;
         foreach (var tenant in tenants.Where(t => !t.Equals(currentTenant)))
         {
-            var policies = await policyRepository.GetPoliciesByTenantAsync(tenant);
-            policy = policies.FirstOrDefault(p => p.Id.Id == contractCreateDto.PolicyId);
+            policy = await policyRepository.GetPolicyByIdAsync(requiredPolicyId);
+            if (policy == null)
+            {
+                continue;
+            }
+
+            vendorId = tenant.Id;
+            break;
         }
 
         if (policy == null)
@@ -33,7 +41,8 @@ public class ContractCreateService(
         }
 
         var createdAt = DateTime.UtcNow;
-        var contract = Contract.Create(contractId, createdAt, new PolicyId(contractCreateDto.PolicyId));
+        var contract = Contract.Create(contractId, createdAt, new PolicyId(contractCreateDto.PolicyId),
+            currentTenant.Id, vendorId!);
         await contractRepository.AddAsync(contract);
 
         return contractId.Id;

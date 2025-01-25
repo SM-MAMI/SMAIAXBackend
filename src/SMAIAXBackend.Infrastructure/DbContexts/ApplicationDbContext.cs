@@ -29,6 +29,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.ApplyConfiguration(new DomainUserConfiguration());
         builder.ApplyConfiguration(new RefreshTokenConfiguration());
         builder.ApplyConfiguration(new TenantConfiguration());
+        builder.ApplyConfiguration(new ContractConfiguration());
 
         // Place Identity tables in the "auth" schema
         builder.Entity<IdentityUser>(entity => entity.ToTable(name: "AspNetUsers", schema: "auth"));
