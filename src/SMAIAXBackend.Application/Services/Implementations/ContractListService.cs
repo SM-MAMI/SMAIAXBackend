@@ -13,6 +13,7 @@ public class ContractListService(
     IPolicyRepository policyRepository,
     ITenantRepository tenantRepository,
     ITenantContextService tenantContextService,
+    IPolicyListService policyListService,
     ILogger<ContractListService> logger) : IContractListService
 {
     public async Task<List<ContractOverviewDto>> GetContractsAsync()
@@ -39,7 +40,9 @@ public class ContractListService(
                 throw new PolicyNotFoundException(contract.PolicyId.Id);
             }
 
-            var contractOverviewDto = ContractOverviewDto.FromContract(contract, policy);
+            var measurementCount = await policyListService.GetMeasurementCountByTenantAndPolicyAsync(policy, vendorTenant);
+
+            var contractOverviewDto = ContractOverviewDto.FromContract(contract, policy, measurementCount);
             contractOverviewDtos.Add(contractOverviewDto);
         }
 

@@ -1,4 +1,5 @@
 ﻿using SMAIAXBackend.Application.DTOs;
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
@@ -13,4 +14,6 @@ public interface IPolicyListService
         LocationResolution? locationResolution);
 
     Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId);
+
+    Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null);
 }
