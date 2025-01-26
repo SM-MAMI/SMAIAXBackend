@@ -32,15 +32,16 @@ public class PolicyListService(
         return await ToPolicyDtoListWithMeasurementCount(policies);
     }
 
-    public async Task<PolicyDto> GetPolicyByIdAsync(PolicyId policyId)
+    public async Task<PolicyDto> GetPolicyByTenantAsync(Tenant tenant, PolicyId policyId)
     {
-        var policy = await policyRepository.GetPolicyByIdAsync(policyId);
+        var policy = await policyRepository.GetPolicyByTenantAsync(tenant, policyId);
         if (policy == null)
         {
             throw new PolicyNotFoundException(policyId.Id);
         }
 
-        return await ToPolicyDtoWithMeasurementCount(policy);
+        var measurementCount = await GetMeasurementCountByTenantAndPolicyAsync(policy, tenant);
+        return PolicyDto.FromPolicy(policy, measurementCount);
     }
 
     public async Task<List<PolicyDto>> GetFilteredPoliciesAsync(decimal? maxPrice,
@@ -86,9 +87,11 @@ public class PolicyListService(
         return matchingPolicies;
     }
 
-    public async Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId)
+    public async Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId, Tenant? tenant = null)
     {
-        var policy = await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId));
+        var policy = tenant == null
+            ? await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId))
+            : await policyRepository.GetPolicyByTenantAsync(tenant, new PolicyId(policyId));
         if (policy == null)
         {
             logger.LogError("Policy with id '{policyId}' not found.", policyId);
@@ -99,11 +102,13 @@ public class PolicyListService(
         {
             // If location resolution "does not matter", return all measurements.
             return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(policy.SmartMeterId.Id,
-                policy.MeasurementResolution);
+                policy.MeasurementResolution, null, tenant);
         }
 
         // Otherwise location resolution must match with metadata.
-        var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(policy.SmartMeterId);
+        var smartMeter = tenant == null
+            ? await smartMeterRepository.GetSmartMeterByIdAsync(policy.SmartMeterId)
+            : await smartMeterRepository.GetSmartMeterByTenantAndIdAsync(tenant, policy.SmartMeterId);
         if (smartMeter == null)
         {
             throw new SmartMeterNotFoundException(policy.SmartMeterId);
@@ -132,10 +137,10 @@ public class PolicyListService(
         }
 
         return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeter.Id.Id,
-            policy.MeasurementResolution, timeSpans);
+            policy.MeasurementResolution, timeSpans, tenant);
     }
 
-    public async Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null)
+    private async Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null)
     {
         if (policy.LocationResolution == LocationResolution.None)
         {
@@ -181,17 +186,15 @@ public class PolicyListService(
 
     private async Task<List<PolicyDto>> ToPolicyDtoListWithMeasurementCount(List<Policy> policies)
     {
-        var policyDtoTasks = policies.Select(ToPolicyDtoWithMeasurementCount);
-        var policyDtoList = await Task.WhenAll(policyDtoTasks);
-        return policyDtoList.ToList();
-    }
+        var policyDtoList = new List<PolicyDto>();
+        foreach (var policy in policies)
+        {
+            var measurementCount =
+                await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
+                    policy.MeasurementResolution, null, null);
+            policyDtoList.Add(PolicyDto.FromPolicy(policy, measurementCount));
+        }
 
-    private async Task<PolicyDto> ToPolicyDtoWithMeasurementCount(Policy policy)
-    {
-        var measurementCount =
-            await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
-                policy.MeasurementResolution, null, null);
-
-        return PolicyDto.FromPolicy(policy, measurementCount);
+        return policyDtoList;
     }
 }

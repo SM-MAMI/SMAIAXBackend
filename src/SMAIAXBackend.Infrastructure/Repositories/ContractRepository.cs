@@ -26,4 +26,10 @@ public class ContractRepository(ApplicationDbContext applicationDbContext) : ICo
             .Where(x => x.BuyerId == buyerId)
             .ToListAsync();
     }
+
+    public async Task<Contract?> GetContractByIdAsync(TenantId buyerId, ContractId contractId)
+    {
+        return await applicationDbContext.Contracts
+            .FirstOrDefaultAsync(x => x.BuyerId == buyerId && x.Id.Equals(contractId));
+    }
 }

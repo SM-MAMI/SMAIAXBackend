@@ -50,9 +50,15 @@ public class MeasurementRepository(
 
     public async Task<(List<Measurement>, int)> GetMeasurementsBySmartMeterAsync(SmartMeterId smartMeterId,
         DateTime? startAt,
-        DateTime? endAt)
+        DateTime? endAt,
+        Tenant? tenant = null)
     {
-        var query = tenantDbContext.Measurements.AsNoTracking()
+        TenantDbContext tenantSpecificDbContext = tenant != null
+            ? tenantDbContextFactory.CreateDbContext(tenant.DatabaseName,
+                databaseConfigOptions.Value.SuperUsername, databaseConfigOptions.Value.SuperUserPassword)
+            : tenantDbContext;
+
+        var query = tenantSpecificDbContext.Measurements.AsNoTracking()
             .Where(m => m.SmartMeterId.Equals(smartMeterId))
             .Where(m => startAt == null || m.Timestamp >= startAt)
             .Where(m => endAt == null || m.Timestamp <= endAt);
@@ -62,8 +68,13 @@ public class MeasurementRepository(
 
     public async Task<(List<AggregatedMeasurement>, int)> GetAggregatedMeasurementsBySmartMeterAsync(
         SmartMeterId smartMeterId,
-        MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
+        MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt, Tenant? tenant = null)
     {
+        TenantDbContext tenantSpecificDbContext = tenant != null
+            ? tenantDbContextFactory.CreateDbContext(tenant.DatabaseName,
+                databaseConfigOptions.Value.SuperUsername, databaseConfigOptions.Value.SuperUserPassword)
+            : tenantDbContext;
+
         string tableName = GetTableName(measurementResolution);
         string sqlQuery = $"""
                            SELECT
@@ -126,10 +137,10 @@ public class MeasurementRepository(
                            WHERE "smartMeterId" = @smartMeterId AND (@startAt IS NULL OR "timestamp" >= @startAt) AND (@endAt IS NULL OR "timestamp" <= @endAt)
                            """;
 
-        await using var command = tenantDbContext.Database.GetDbConnection().CreateCommand();
+        await using var command = tenantSpecificDbContext.Database.GetDbConnection().CreateCommand();
         AssignToCommand(command, sqlQuery, smartMeterId, startAt, endAt);
 
-        await tenantDbContext.Database.OpenConnectionAsync();
+        await tenantSpecificDbContext.Database.OpenConnectionAsync();
 
         await using var result = await command.ExecuteReaderAsync();
         var aggregatedMeasurements = new List<AggregatedMeasurement>();
@@ -226,7 +237,7 @@ public class MeasurementRepository(
             count += 1;
         }
 
-        await tenantDbContext.Database.CloseConnectionAsync();
+        await tenantSpecificDbContext.Database.CloseConnectionAsync();
 
         return (aggregatedMeasurements, count);
     }

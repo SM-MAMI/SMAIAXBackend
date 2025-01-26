@@ -1,22 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using SMAIAXBackend.Domain.Model.Entities;
-using SMAIAXBackend.Domain.Model.Enums;
 
 namespace SMAIAXBackend.Application.DTOs;
 
 public class ContractOverviewDto(
     Guid id,
     DateTime createdAt,
-    PolicyDto policyDto)
+    PolicyDto policy)
 {
     [Required] public Guid Id { get; set; } = id;
     [Required] public DateTime CreatedAt { get; set; } = createdAt;
-    [Required] public PolicyDto PolicyDto { get; set; } = policyDto;
+    [Required] public PolicyDto Policy { get; set; } = policy;
 
-    public static ContractOverviewDto FromContract(Contract contract, Policy policy, int measurementCount)
+    public static ContractOverviewDto FromContract(Contract contract, PolicyDto policy)
     {
-        var policyDto = PolicyDto.FromPolicy(policy, measurementCount);
-        return new ContractOverviewDto(contract.Id.Id, contract.CreatedAt, policyDto);
+        return new ContractOverviewDto(contract.Id.Id, contract.CreatedAt, policy);
     }
 }

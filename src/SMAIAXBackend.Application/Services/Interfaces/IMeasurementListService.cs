@@ -1,4 +1,5 @@
 using SMAIAXBackend.Application.DTOs;
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 
 namespace SMAIAXBackend.Application.Services.Interfaces;
@@ -24,7 +25,9 @@ public interface IMeasurementListService
     /// <param name="measurementResolution">The resolution in which the measurements should be returned.</param>
     /// <param name="timeSpans">List of datetime tuples where the first value represents the start time and the second value represents the end time.
     /// If time-spans are null, then all data will be returned.</param>
+    /// <param name="tenant">Optional tenant if measurements are not from current tenant.</param>
     /// <returns>Object with measurements in the specified resolution and the given limitations and amount of measurements.</returns>
     Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
-        MeasurementResolution measurementResolution, IList<(DateTime?, DateTime?)>? timeSpans = null);
+        MeasurementResolution measurementResolution, IList<(DateTime?, DateTime?)>? timeSpans = null,
+        Tenant? tenant = null);
 }

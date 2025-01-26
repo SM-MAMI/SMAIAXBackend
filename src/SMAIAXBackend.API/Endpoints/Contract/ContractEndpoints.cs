@@ -26,6 +26,14 @@ public static class ContractEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet("/{id:guid}", GetContractByIdEndpoint.Handle)
+            .WithName("getContractById")
+            .Produces<ContractDto>(StatusCodes.Status200OK, contentType)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         return app;
     }
 }
