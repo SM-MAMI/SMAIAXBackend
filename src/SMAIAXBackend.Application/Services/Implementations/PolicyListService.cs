@@ -32,6 +32,17 @@ public class PolicyListService(
         return await ToPolicyDtoListWithMeasurementCount(policies);
     }
 
+    public async Task<PolicyDto> GetPolicyByIdAsync(PolicyId policyId)
+    {
+        var policy = await policyRepository.GetPolicyByIdAsync(policyId);
+        if (policy == null)
+        {
+            throw new PolicyNotFoundException(policyId.Id);
+        }
+
+        return await ToPolicyDtoWithMeasurementCount(policy);
+    }
+
     public async Task<List<PolicyDto>> GetFilteredPoliciesAsync(decimal? maxPrice,
         MeasurementResolution? measurementResolution, LocationResolution? locationResolution)
     {
@@ -170,15 +181,17 @@ public class PolicyListService(
 
     private async Task<List<PolicyDto>> ToPolicyDtoListWithMeasurementCount(List<Policy> policies)
     {
-        var policyDtoList = new List<PolicyDto>();
-        foreach (var policy in policies)
-        {
-            var measurementCount =
-                await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
-                    policy.MeasurementResolution, null, null);
-            policyDtoList.Add(PolicyDto.FromPolicy(policy, measurementCount));
-        }
+        var policyDtoTasks = policies.Select(ToPolicyDtoWithMeasurementCount);
+        var policyDtoList = await Task.WhenAll(policyDtoTasks);
+        return policyDtoList.ToList();
+    }
 
-        return policyDtoList;
+    private async Task<PolicyDto> ToPolicyDtoWithMeasurementCount(Policy policy)
+    {
+        var measurementCount =
+            await measurementRepository.GetMeasurementCountBySmartMeterAndResolution(policy.SmartMeterId,
+                policy.MeasurementResolution, null, null);
+
+        return PolicyDto.FromPolicy(policy, measurementCount);
     }
 }
