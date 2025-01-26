@@ -2,7 +2,7 @@
 
 public class ConnectorSerialNumber(Guid serialNumber) : ValueObject
 {
-    public Guid SerialNumber { get; } = serialNumber;
+    public Guid SerialNumber { get; private set; } = serialNumber;
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

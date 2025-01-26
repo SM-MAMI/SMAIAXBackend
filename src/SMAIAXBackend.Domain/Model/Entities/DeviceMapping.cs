@@ -5,8 +5,8 @@ namespace SMAIAXBackend.Domain.Model.Entities;
 
 public class DeviceMapping
 {
-    public ConnectorSerialNumber ConnectorSerialNumber { get; }
-    public string PublicKey { get; }
+    public ConnectorSerialNumber ConnectorSerialNumber { get; private set; }
+    public string PublicKey { get; private set; }
     public UserId? AssignedUser { get; private set; }
     
     public static DeviceMapping Create(

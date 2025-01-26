@@ -55,6 +55,12 @@ public class SmartMeterRepository(
             .FirstOrDefaultAsync(sm => sm.Id.Equals(smartMeterId));
     }
 
+    public Task DeleteAsync(SmartMeter smartMeter)
+    {
+        tenantDbContext.SmartMeters.Remove(smartMeter);
+        return tenantDbContext.SaveChangesAsync();
+    }
+
     public async Task<SmartMeter?> GetSmartMeterBySerialNumberAsync(ConnectorSerialNumber serialNumber)
     {
         return await tenantDbContext.SmartMeters

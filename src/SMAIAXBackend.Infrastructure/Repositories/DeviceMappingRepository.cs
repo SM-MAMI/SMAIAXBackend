@@ -1,4 +1,7 @@
-﻿using SMAIAXBackend.Domain.Model.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+
+using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Infrastructure.DbContexts;
 
@@ -11,7 +14,13 @@ public class DeviceMappingRepository(ApplicationDbContext applicationDbContext) 
         await applicationDbContext.DeviceMappings.AddAsync(deviceMapping);
         await applicationDbContext.SaveChangesAsync();
     }
-    
+
+    public async Task<DeviceMapping?> GetDeviceMappingBySerialNumberAsync(ConnectorSerialNumber serialNumber)
+    {
+        return await applicationDbContext.DeviceMappings.FirstOrDefaultAsync(dm => dm.ConnectorSerialNumber.Equals(serialNumber));
+    }
+
+
     public async Task UpdateAsync(DeviceMapping deviceMapping)
     {
         applicationDbContext.DeviceMappings.Update(deviceMapping);
