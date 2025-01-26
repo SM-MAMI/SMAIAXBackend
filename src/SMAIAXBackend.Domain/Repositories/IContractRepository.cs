@@ -7,4 +7,5 @@ public interface IContractRepository
 {
     ContractId NextIdentity();
     Task AddAsync(Contract contract);
+    Task<List<Contract>> GetContractsForTenantAsync(TenantId buyerId);
 }

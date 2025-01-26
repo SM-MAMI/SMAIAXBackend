@@ -124,7 +124,7 @@ public class PolicyListService(
             policy.MeasurementResolution, timeSpans);
     }
 
-    private async Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null)
+    public async Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null)
     {
         if (policy.LocationResolution == LocationResolution.None)
         {

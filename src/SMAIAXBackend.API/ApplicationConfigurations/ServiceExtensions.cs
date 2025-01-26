@@ -24,5 +24,6 @@ public static class ServiceExtensions
         services.AddScoped<IDeviceConfigListService, DeviceConfigListService>();
         services.AddTransient<IEncryptionService, EncryptionService>();
         services.AddScoped<IContractCreateService, ContractCreateService>();
+        services.AddScoped<IContractListService, ContractListService>();
     }
 }
