@@ -41,7 +41,7 @@ public class OrderService(
             await vaultRepository.SaveMqttBrokerCredentialsAsync(smartMeterId, topic, username, password);
             await mqttBrokerRepository.CreateMqttUserAsync(topic, username, password);
         });
-        
+
         var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
         if (userId == null)
         {
@@ -49,7 +49,7 @@ public class OrderService(
         }
         var deviceMapping = DeviceMapping.Create(connectorSerialNumber, publicKey, new UserId(Guid.Parse(userId)));
         await deviceMappingRepository.AddAsync(deviceMapping);
-        
+
         return connectorSerialNumber;
     }
 

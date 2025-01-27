@@ -12,9 +12,9 @@ public class DeviceMappingConfiguration : IEntityTypeConfiguration<DeviceMapping
     public void Configure(EntityTypeBuilder<DeviceMapping> builder)
     {
         builder.ToTable("DeviceMapping", "domain");
-        
+
         builder.HasKey(d => d.ConnectorSerialNumber);
-        
+
         builder.Property(d => d.ConnectorSerialNumber)
             .HasConversion(
                 v => v.SerialNumber,

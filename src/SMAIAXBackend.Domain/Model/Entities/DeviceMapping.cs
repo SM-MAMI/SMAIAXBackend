@@ -8,7 +8,7 @@ public class DeviceMapping
     public ConnectorSerialNumber ConnectorSerialNumber { get; private set; }
     public string PublicKey { get; private set; }
     public UserId? AssignedUser { get; private set; }
-    
+
     public static DeviceMapping Create(
         ConnectorSerialNumber connectorSerialNumber,
         string publicKey,
@@ -16,12 +16,12 @@ public class DeviceMapping
     {
         return new DeviceMapping(connectorSerialNumber, publicKey, assignedUser);
     }
-    
+
     // Needed by EF Core
     private DeviceMapping()
     {
     }
-    
+
     private DeviceMapping(
         ConnectorSerialNumber connectorSerialNumber,
         string publicKey,
@@ -31,12 +31,12 @@ public class DeviceMapping
         PublicKey = publicKey;
         AssignedUser = assignedUser;
     }
-    
+
     public void DeleteAssignment()
     {
         AssignedUser = null;
     }
-    
+
     public void AssignUser(UserId userId)
     {
         AssignedUser = userId;

@@ -17,7 +17,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<RefreshToken> RefreshTokens { get; init; }
     public DbSet<Tenant> Tenants { get; init; }
     public DbSet<Contract> Contracts { get; init; }
-    
+
     public DbSet<DeviceMapping> DeviceMappings { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

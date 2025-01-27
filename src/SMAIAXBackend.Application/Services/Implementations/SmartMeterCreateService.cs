@@ -25,7 +25,7 @@ public class SmartMeterCreateService(
 {
     public async Task<Guid> AssignSmartMeterAsync(SmartMeterAssignDto smartMeterAssignDto)
     {
-        
+
         var deviceMapping = await deviceMappingRepository.GetDeviceMappingBySerialNumberAsync(
             new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
         if (deviceMapping == null)
@@ -40,10 +40,10 @@ public class SmartMeterCreateService(
         }
         deviceMapping.AssignUser(new UserId(Guid.Parse(userId)));
 
-        
+
         var smartMeter = SmartMeter.Create(smartMeterRepository.NextIdentity(), smartMeterAssignDto.Name,
             new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber), deviceMapping.PublicKey);
-        
+
         if (smartMeterAssignDto.Metadata != null)
         {
             var metadataId = smartMeterRepository.NextMetadataIdentity();
@@ -61,7 +61,7 @@ public class SmartMeterCreateService(
 
         await deviceMappingRepository.UpdateAsync(deviceMapping);
         await smartMeterRepository.AddAsync(smartMeter);
-        
+
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
             string topic = $"smartmeter/{smartMeter.Id.Id}";

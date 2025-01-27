@@ -41,7 +41,7 @@ public class SmartMeterCreateServiceTests
             _mqttBrokerRepositoryMock.Object, _deviceMappingRepositoryMock.Object, _httpContextAccessorMock.Object, _vaultRepositoryMock.Object, _transactionManagerMock.Object,
             _loggerMock.Object);
     }
-    
+
 
     [Test]
     public async Task
