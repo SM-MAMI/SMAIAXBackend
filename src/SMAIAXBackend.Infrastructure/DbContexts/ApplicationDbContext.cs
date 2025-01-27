@@ -10,7 +10,7 @@ using SMAIAXBackend.Infrastructure.EntityConfigurations;
 
 namespace SMAIAXBackend.Infrastructure.DbContexts;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<User> DomainUsers { get; init; }
@@ -46,29 +46,82 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         var hasher = new PasswordHasher<IdentityUser>();
 
-        var userId = new UserId(Guid.Parse("3c07065a-b964-44a9-9cdf-fbd49d755ea7"));
-        var userName = configuration.GetValue<string>("TestUser:Username");
-        var email = configuration.GetValue<string>("TestUser:Email");
-        var password = configuration.GetValue<string>("TestUser:Password");
-        var tenantDatabase = configuration.GetValue<string>("TestUser:Database");
+        var johnDoeUserId = new UserId(Guid.Parse("3c07065a-b964-44a9-9cdf-fbd49d755ea7"));
+        const string johnDoeUserName = "johndoe";
+        const string johnDoeEmail = "john.doe@example.com";
+        const string johnDoePassword = "P@ssw0rd";
+        const string johnDoeTenantDatabase = "tenant_1_db";
 
-        var testUser = new IdentityUser
+        var johnDoeTestUser = new IdentityUser
         {
-            Id = userId.Id.ToString(),
-            UserName = userName,
-            NormalizedUserName = userName!.ToUpper(),
-            Email = email,
-            NormalizedEmail = email!.ToUpper(),
+            Id = johnDoeUserId.Id.ToString(),
+            UserName = johnDoeUserName,
+            NormalizedUserName = johnDoeUserName!.ToUpper(),
+            Email = johnDoeEmail,
+            NormalizedEmail = johnDoeEmail!.ToUpper(),
         };
-        var passwordHash = hasher.HashPassword(testUser, password!);
-        testUser.PasswordHash = passwordHash;
+        var johnDoePasswordHash = hasher.HashPassword(johnDoeTestUser, johnDoePassword!);
+        johnDoeTestUser.PasswordHash = johnDoePasswordHash;
 
-        var tenant = Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_1_role", tenantDatabase!);
-        var domainUser = User.Create(userId, new Name("John", "Doe"), userName, email, tenant.Id);
+        var johnDoeTenant = Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_1_role", johnDoeTenantDatabase!);
+        var johnDoeDomainUser = User.Create(johnDoeUserId, new Name("John", "Doe"), johnDoeUserName, johnDoeEmail,
+            johnDoeTenant.Id);
 
-        await Users.AddAsync(testUser);
-        await Tenants.AddAsync(tenant);
-        await DomainUsers.AddAsync(domainUser);
+        var janeDoeUserId = new UserId(Guid.Parse("4d07065a-b964-44a9-9cdf-fbd49d755ea8"));
+        const string janeDoeUserName = "janedoe";
+        const string janeDoeEmail = "jane.doe@example.com";
+        const string janeDoePassword = "P@ssw0rd";
+        const string janeDoeTenantDatabase = "tenant_2_db";
+
+        var janeDoeTestUser = new IdentityUser
+        {
+            Id = janeDoeUserId.Id.ToString(),
+            UserName = janeDoeUserName,
+            NormalizedUserName = janeDoeUserName!.ToUpper(),
+            Email = janeDoeEmail,
+            NormalizedEmail = janeDoeEmail!.ToUpper(),
+        };
+        var janeDoePasswordHash = hasher.HashPassword(janeDoeTestUser, janeDoePassword!);
+        janeDoeTestUser.PasswordHash = janeDoePasswordHash;
+
+        var janeDoeTenant = Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_2_role", janeDoeTenantDatabase!);
+        var janeDoeDomainUser = User.Create(janeDoeUserId, new Name("Jane", "Doe"), janeDoeUserName, janeDoeEmail,
+            janeDoeTenant.Id);
+
+        var maxMustermannUserId = new UserId(Guid.Parse("5e07065a-b964-44a9-9cdf-fbd49d755ea9"));
+        const string maxMustermannUserName = "maxmustermann";
+        const string maxMustermannEmail = "max.mustermann@example.com";
+        const string maxMustermannPassword = "P@ssw0rd";
+        const string maxMustermannTenantDatabase = "tenant_3_db";
+
+        var maxMustermannTestUser = new IdentityUser
+        {
+            Id = maxMustermannUserId.Id.ToString(),
+            UserName = maxMustermannUserName,
+            NormalizedUserName = maxMustermannUserName!.ToUpper(),
+            Email = maxMustermannEmail,
+            NormalizedEmail = maxMustermannEmail!.ToUpper(),
+        };
+        var maxMustermannPasswordHash = hasher.HashPassword(maxMustermannTestUser, maxMustermannPassword!);
+        maxMustermannTestUser.PasswordHash = maxMustermannPasswordHash;
+
+        var maxMustermannTenant =
+            Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_3_role", maxMustermannTenantDatabase!);
+        var maxMustermannDomainUser = User.Create(maxMustermannUserId, new Name("Max", "Mustermann"),
+            maxMustermannUserName, maxMustermannEmail, maxMustermannTenant.Id);
+
+        await Users.AddAsync(johnDoeTestUser);
+        await Tenants.AddAsync(johnDoeTenant);
+        await DomainUsers.AddAsync(johnDoeDomainUser);
+
+        await Users.AddAsync(janeDoeTestUser);
+        await Tenants.AddAsync(janeDoeTenant);
+        await DomainUsers.AddAsync(janeDoeDomainUser);
+
+        await Users.AddAsync(maxMustermannTestUser);
+        await Tenants.AddAsync(maxMustermannTenant);
+        await DomainUsers.AddAsync(maxMustermannDomainUser);
+
         await SaveChangesAsync();
     }
 }
