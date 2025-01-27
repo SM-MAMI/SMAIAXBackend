@@ -23,7 +23,7 @@ public class ContractListService(
 
         foreach (var contract in contracts)
         {
-            var vendorTenant = await tenantRepository.GetByIdAsync(new TenantId(contract.VendorId.Id));
+            var vendorTenant = await tenantRepository.GetByIdAsync(contract.VendorId);
 
             if (vendorTenant == null)
             {
