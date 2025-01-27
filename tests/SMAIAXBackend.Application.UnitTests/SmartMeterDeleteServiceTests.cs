@@ -9,6 +9,7 @@ using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
+using SMAIAXBackend.Domain.Repositories.Transactions;
 
 namespace SMAIAXBackend.Application.UnitTests;
 
@@ -17,6 +18,8 @@ public class SmartMeterDeleteServiceTests
 {
     private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
     private Mock<ILogger<SmartMeterDeleteService>> _loggerMock;
+    private Mock<IDeviceMappingRepository> _deviceMappingRepositoryMock;
+    private Mock<ITransactionManager> _transactionManagerMock;
     private SmartMeterDeleteService _smartMeterDeleteService;
 
     [SetUp]
@@ -24,7 +27,9 @@ public class SmartMeterDeleteServiceTests
     {
         _smartMeterRepositoryMock = new Mock<ISmartMeterRepository>();
         _loggerMock = new Mock<ILogger<SmartMeterDeleteService>>();
-        _smartMeterDeleteService = new SmartMeterDeleteService(_smartMeterRepositoryMock.Object, _loggerMock.Object);
+        _deviceMappingRepositoryMock = new Mock<IDeviceMappingRepository>();
+        _transactionManagerMock = new Mock<ITransactionManager>();
+        _smartMeterDeleteService = new SmartMeterDeleteService(_smartMeterRepositoryMock.Object, _deviceMappingRepositoryMock.Object, _transactionManagerMock.Object, _loggerMock.Object);
     }
 
     [Test]

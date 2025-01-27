@@ -14,4 +14,5 @@ public interface ISmartMeterRepository
     Task<SmartMeter?> GetSmartMeterBySerialNumberAsync(ConnectorSerialNumber serialNumber);
     Task UpdateAsync(SmartMeter smartMeter);
     Task<SmartMeter?> GetSmartMeterByTenantAndIdAsync(Tenant tenant, SmartMeterId smartMeterId);
+    Task DeleteAsync(SmartMeter smartMeter);
 }

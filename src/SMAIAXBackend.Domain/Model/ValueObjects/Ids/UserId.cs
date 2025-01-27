@@ -2,7 +2,7 @@ namespace SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 
 public class UserId(Guid id) : ValueObject
 {
-    public Guid Id { get; } = id;
+    public Guid Id { get; private set; } = id;
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

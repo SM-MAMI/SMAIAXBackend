@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Repositories;
 using SMAIAXBackend.Domain.Repositories.Transactions;
 using SMAIAXBackend.Infrastructure;
@@ -22,5 +23,6 @@ public static class RepositoryExtensions
         services.AddScoped<IPolicyRepository, PolicyRepository>();
         services.AddScoped<IMeasurementRepository, MeasurementRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
+        services.AddScoped<IDeviceMappingRepository, DeviceMappingRepository>();
     }
 }

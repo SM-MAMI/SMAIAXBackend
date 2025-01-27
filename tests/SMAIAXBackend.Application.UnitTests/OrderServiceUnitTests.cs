@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -20,6 +21,8 @@ public class OrderServiceUnitTests
     private Mock<IVaultRepository> _vaultRepositoryMock;
     private Mock<IEncryptionService> _keyGenerationServiceMock;
     private Mock<ITransactionManager> _transactionManagerMock;
+    private Mock<IHttpContextAccessor> _httpContextAccessorMock;
+    private Mock<IDeviceMappingRepository> _deviceMappingRepositoryMock;
     private OrderService _orderService;
 
     [SetUp]
@@ -30,8 +33,12 @@ public class OrderServiceUnitTests
         _vaultRepositoryMock = new Mock<IVaultRepository>();
         _keyGenerationServiceMock = new Mock<IEncryptionService>();
         _transactionManagerMock = new Mock<ITransactionManager>();
+        _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        _deviceMappingRepositoryMock = new Mock<IDeviceMappingRepository>();
         _orderService = new OrderService(_smartMeterRepositoryMock.Object,
             _mqttBrokerRepositoryMock.Object, _vaultRepositoryMock.Object, _keyGenerationServiceMock.Object,
+            _deviceMappingRepositoryMock.Object,
+            _httpContextAccessorMock.Object,
             _transactionManagerMock.Object);
     }
 
@@ -43,6 +50,9 @@ public class OrderServiceUnitTests
         var publicKey = "SamplePublicKey";
         var privateKey = "SamplePrivateKey";
 
+        _httpContextAccessorMock.Setup(accessor => accessor.HttpContext.Items["UserId"].ToString())
+            .Returns(Guid.NewGuid().ToString);
+        _deviceMappingRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<DeviceMapping>()));
         _smartMeterRepositoryMock.Setup(repo => repo.NextIdentity()).Returns(smartMeterId);
         _keyGenerationServiceMock.Setup(service => service.GenerateKeys()).Returns((publicKey, privateKey));
         _transactionManagerMock.Setup(manager => manager.ReadCommittedTransactionScope(It.IsAny<Func<Task>>()))

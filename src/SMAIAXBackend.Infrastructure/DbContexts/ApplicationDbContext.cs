@@ -18,6 +18,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Tenant> Tenants { get; init; }
     public DbSet<Contract> Contracts { get; init; }
 
+    public DbSet<DeviceMapping> DeviceMappings { get; init; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -31,6 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.ApplyConfiguration(new RefreshTokenConfiguration());
         builder.ApplyConfiguration(new TenantConfiguration());
         builder.ApplyConfiguration(new ContractConfiguration());
+        builder.ApplyConfiguration(new DeviceMappingConfiguration());
 
         // Place Identity tables in the "auth" schema
         builder.Entity<IdentityUser>(entity => entity.ToTable(name: "AspNetUsers", schema: "auth"));
