@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
@@ -15,6 +16,7 @@ using SMAIAXBackend.Infrastructure.Configurations;
 using SMAIAXBackend.Infrastructure.DbContexts;
 
 var builder = WebApplication.CreateBuilder(args);
+var startupTime = Stopwatch.StartNew();
 
 builder.Services.AddDatabaseConfigurations(builder.Configuration);
 builder.Services.AddRepositoryConfigurations();
@@ -79,16 +81,36 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("DockerDeve
     await applicationDbContext.Database.EnsureCreatedAsync();
     await applicationDbContext.SeedTestData();
 
-    // Create a database for the test user with test data for development
+    // Create a database for the test users with test data for development
     var dbConfig = app.Configuration.GetSection("DatabaseConfiguration").Get<DatabaseConfiguration>();
-    var testUserDatabase = app.Configuration.GetValue<string>("TestUser:Database");
+    const string johnDoeTenantDb = "tenant_1_db";
+    const string johnDoeVaultRole = "tenant_1_role";
+    const string janeDoeTenantDb = "tenant_2_db";
+    const string janeDoeVaultRole = "tenant_2_role";
+    const string maxMustermannTenantDb = "tenant_3_db";
+    const string maxMustermannVaultRole = "tenant_3_role";
 
     var tenantDbContext =
-        tenantDbContextFactory.CreateDbContext("tenant_1_db", dbConfig!.SuperUsername, dbConfig.SuperUserPassword);
+        tenantDbContextFactory.CreateDbContext(johnDoeTenantDb, dbConfig!.SuperUsername, dbConfig.SuperUserPassword);
     await tenantDbContext.Database.EnsureDeletedAsync();
-    await tenantRepository.CreateDatabaseForTenantAsync(testUserDatabase!);
-    await tenantDbContext.SeedTestData();
-    await vaultRepository.CreateDatabaseRoleAsync("tenant_1_role", "tenant_1_db");
+    await tenantRepository.CreateDatabaseForTenantAsync(johnDoeTenantDb!);
+    await tenantDbContext.SeedTestDataForJohnDoe();
+    await vaultRepository.CreateDatabaseRoleAsync(johnDoeVaultRole, johnDoeTenantDb);
+
+    tenantDbContext =
+        tenantDbContextFactory.CreateDbContext(janeDoeTenantDb, dbConfig.SuperUsername, dbConfig.SuperUserPassword);
+    await tenantDbContext.Database.EnsureDeletedAsync();
+    await tenantRepository.CreateDatabaseForTenantAsync(janeDoeTenantDb!);
+    await tenantDbContext.SeedTestDataForJaneDoe();
+    await vaultRepository.CreateDatabaseRoleAsync(janeDoeVaultRole, janeDoeTenantDb);
+
+    tenantDbContext =
+        tenantDbContextFactory.CreateDbContext(maxMustermannTenantDb, dbConfig.SuperUsername,
+            dbConfig.SuperUserPassword);
+    await tenantDbContext.Database.EnsureDeletedAsync();
+    await tenantRepository.CreateDatabaseForTenantAsync(maxMustermannTenantDb!);
+    await tenantDbContext.SeedTestDataForMaxMustermann();
+    await vaultRepository.CreateDatabaseRoleAsync(maxMustermannVaultRole, maxMustermannTenantDb);
 }
 
 app.UseAuthorization();
@@ -103,6 +125,8 @@ app.MapAuthenticationEndpoints()
     .MapMeasurementEndpoints()
     .MapContractEndpoints();
 
+startupTime.Stop();
+app.Logger.LogInformation("Application startup took {Minutes} minutes and {Seconds} seconds", startupTime.Elapsed.Minutes, startupTime.Elapsed.Seconds);
 await app.RunAsync();
 
 // For integration tests
