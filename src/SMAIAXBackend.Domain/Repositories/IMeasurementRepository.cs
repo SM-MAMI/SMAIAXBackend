@@ -18,9 +18,10 @@ public interface IMeasurementRepository
     ///     Optional timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be
     ///     returned.
     /// </param>
+    /// <param name="tenant">Optional tenant if measurements are not of the current tenant.</param>
     /// <returns>All measurements between given limitations and a count variable.</returns>
     Task<(List<Measurement>, int)> GetMeasurementsBySmartMeterAsync(SmartMeterId smartMeterId, DateTime? startAt,
-        DateTime? endAt);
+        DateTime? endAt, Tenant? tenant = null);
 
     /// <summary>
     ///     Reads all measurements by resolution, which can not be of type RAW and by smart meter, in the given time range.
@@ -35,9 +36,10 @@ public interface IMeasurementRepository
     ///     Optional timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be
     ///     returned.
     /// </param>
+    /// <param name="tenant">Optional tenant if measurements are not of the current tenant.</param>
     /// <returns>All measurements with diverse aggregations between given limitations and a count variable.</returns>
     Task<(List<AggregatedMeasurement>, int)> GetAggregatedMeasurementsBySmartMeterAsync(SmartMeterId smartMeterId,
-        MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt);
+        MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt, Tenant? tenant = null);
 
     /// <summary>
     ///     Reads the amount of measurements by given smart meter id, resolution and time range.

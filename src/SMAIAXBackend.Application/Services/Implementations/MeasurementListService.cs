@@ -10,7 +10,7 @@ namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class MeasurementListService(
     IMeasurementRepository measurementRepository,
-    ISmartMeterListService smartMeterListService) : IMeasurementListService
+    ISmartMeterRepository smartMeterRepository) : IMeasurementListService
 {
     public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(
         Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt)
@@ -21,10 +21,16 @@ public class MeasurementListService(
 
     public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
-        IList<(DateTime?, DateTime?)>? timeSpans = null)
+        IList<(DateTime?, DateTime?)>? timeSpans = null, Tenant? tenant = null)
     {
         // check if smart meter exists.
-        await smartMeterListService.GetSmartMeterByIdAsync(smartMeterId);
+        var smartMeter = tenant == null
+            ? await smartMeterRepository.GetSmartMeterByIdAsync(new SmartMeterId(smartMeterId))
+            : await smartMeterRepository.GetSmartMeterByTenantAndIdAsync(tenant, new SmartMeterId(smartMeterId));
+        if (smartMeter == null)
+        {
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
+        }
 
         if (timeSpans == null)
         {
@@ -47,7 +53,7 @@ public class MeasurementListService(
             foreach (var span in timeSpans)
             {
                 var (currentMeasurements, currentCount) = await measurementRepository.GetMeasurementsBySmartMeterAsync(
-                    new SmartMeterId(smartMeterId), span.Item1, span.Item2);
+                    new SmartMeterId(smartMeterId), span.Item1, span.Item2, tenant);
                 measurements.AddRange(currentMeasurements);
                 count += currentCount;
             }
@@ -63,7 +69,7 @@ public class MeasurementListService(
                 var (currentMeasurements, currentCount) =
                     await measurementRepository.GetAggregatedMeasurementsBySmartMeterAsync(
                         new SmartMeterId(smartMeterId), measurementResolution, span.Item1,
-                        span.Item2);
+                        span.Item2, tenant);
                 aggregateMeasurements.AddRange(currentMeasurements);
                 count += currentCount;
             }

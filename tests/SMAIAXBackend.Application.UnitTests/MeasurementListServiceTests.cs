@@ -1,9 +1,7 @@
 ﻿using Moq;
 
-using SMAIAXBackend.Application.DTOs;
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Implementations;
-using SMAIAXBackend.Application.Services.Interfaces;
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
@@ -15,16 +13,16 @@ namespace SMAIAXBackend.Application.UnitTests;
 public class MeasurementListServiceTests
 {
     private Mock<IMeasurementRepository> _measurementRepositoryMock;
-    private Mock<ISmartMeterListService> _smartMeterListServiceMock;
+    private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
     private MeasurementListService _measurementListService;
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
         _measurementRepositoryMock = new Mock<IMeasurementRepository>();
-        _smartMeterListServiceMock = new Mock<ISmartMeterListService>();
+        _smartMeterRepositoryMock = new Mock<ISmartMeterRepository>();
         _measurementListService =
-            new MeasurementListService(_measurementRepositoryMock.Object, _smartMeterListServiceMock.Object);
+            new MeasurementListService(_measurementRepositoryMock.Object, _smartMeterRepositoryMock.Object);
     }
 
     [Test]
@@ -35,12 +33,13 @@ public class MeasurementListServiceTests
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
-        var smartMeterDto = new SmartMeterDto(smartMeterId.Id, "my smart meter", []);
+        var smartMeter = SmartMeter.Create(smartMeterId, "my smart meter", []);
         var measurementsExpected = new List<Measurement> { new() };
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
         _measurementRepositoryMock
-            .Setup(x => x.GetMeasurementsBySmartMeterAsync(smartMeterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(x => x.GetMeasurementsBySmartMeterAsync(smartMeterId, It.IsAny<DateTime>(), It.IsAny<DateTime>(),
+                null))
             .ReturnsAsync((measurementsExpected, 5));
 
         // When
@@ -63,14 +62,14 @@ public class MeasurementListServiceTests
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
-        var smartMeterDto = new SmartMeterDto(smartMeterId.Id, "my smart meter", []);
+        var smartMeter = SmartMeter.Create(smartMeterId, "my smart meter", []);
         var measurementsExpected = new List<AggregatedMeasurement>();
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
         _measurementRepositoryMock
             .Setup(x => x.GetAggregatedMeasurementsBySmartMeterAsync(smartMeterId, MeasurementResolution.Hour,
                 It.IsAny<DateTime>(),
-                It.IsAny<DateTime>()))
+                It.IsAny<DateTime>(), null))
             .ReturnsAsync((measurementsExpected, 5));
 
         // When
@@ -94,7 +93,7 @@ public class MeasurementListServiceTests
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(1);
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId))
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(It.Is<SmartMeterId>(sm => sm.Id == smartMeterId)))
             .ThrowsAsync(new SmartMeterNotFoundException(new SmartMeterId(smartMeterId)));
 
         // When ... Then
@@ -111,7 +110,7 @@ public class MeasurementListServiceTests
         // Given
         var smartMeterId = Guid.NewGuid();
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId))
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(It.Is<SmartMeterId>(sm => sm.Id == smartMeterId)))
             .ThrowsAsync(new SmartMeterNotFoundException(new SmartMeterId(smartMeterId)));
 
         // When ... Then
@@ -129,9 +128,9 @@ public class MeasurementListServiceTests
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(-1);
-        var smartMeterDto = new SmartMeterDto(smartMeterId.Id, "Smart Meter 1", []);
+        var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
 
         // When ... Then
         Assert.ThrowsAsync<InvalidTimeRangeException>(async () =>
@@ -148,9 +147,9 @@ public class MeasurementListServiceTests
         var smartMeterId = new SmartMeterId(Guid.NewGuid());
         var startAt = DateTime.UtcNow;
         var endAt = DateTime.UtcNow.AddHours(-1);
-        var smartMeterDto = new SmartMeterDto(smartMeterId.Id, "Smart Meter 1", []);
+        var smartMeter = SmartMeter.Create(smartMeterId, "Smart Meter 1", []);
 
-        _smartMeterListServiceMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId.Id)).ReturnsAsync(smartMeterDto);
+        _smartMeterRepositoryMock.Setup(x => x.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
 
         // When ... Then
         Assert.ThrowsAsync<InvalidTimeRangeException>(async () =>

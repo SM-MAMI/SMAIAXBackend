@@ -10,7 +10,6 @@ namespace SMAIAXBackend.Application.Services.Implementations;
 
 public class ContractListService(
     IContractRepository contractRepository,
-    IPolicyRepository policyRepository,
     ITenantRepository tenantRepository,
     ITenantContextService tenantContextService,
     IPolicyListService policyListService,
@@ -32,20 +31,34 @@ public class ContractListService(
                 throw new TenantNotFoundException(contract.VendorId.Id);
             }
 
-            var policy = await policyRepository.GetPolicyByTenantAsync(vendorTenant, contract.PolicyId);
+            var policyDto = await policyListService.GetPolicyByTenantAsync(vendorTenant, contract.PolicyId);
 
-            if (policy == null)
-            {
-                logger.LogError("Policy with id '{PolicyId}' not found", contract.PolicyId.Id);
-                throw new PolicyNotFoundException(contract.PolicyId.Id);
-            }
-
-            var measurementCount = await policyListService.GetMeasurementCountByTenantAndPolicyAsync(policy, vendorTenant);
-
-            var contractOverviewDto = ContractOverviewDto.FromContract(contract, policy, measurementCount);
+            var contractOverviewDto = ContractOverviewDto.FromContract(contract, policyDto);
             contractOverviewDtos.Add(contractOverviewDto);
         }
 
         return contractOverviewDtos;
+    }
+
+    public async Task<ContractDto> GetContractByIdAsync(Guid contractId)
+    {
+        var currentTenant = await tenantContextService.GetCurrentTenantAsync();
+        var contract = await contractRepository.GetContractByIdAsync(currentTenant.Id, new ContractId(contractId));
+        if (contract == null)
+        {
+            throw new ContractNotFoundException(contractId);
+        }
+
+        var vendorTenant = await tenantRepository.GetByIdAsync(contract.VendorId);
+        if (vendorTenant == null)
+        {
+            logger.LogError("Tenant with id '{TenantId}' not found", contract.VendorId.Id);
+            throw new TenantNotFoundException(contract.VendorId.Id);
+        }
+
+        var policyDto = await policyListService.GetPolicyByTenantAsync(vendorTenant, contract.PolicyId);
+        var measurementListDto = await policyListService.GetMeasurementsByPolicyIdAsync(policyDto.Id, vendorTenant);
+
+        return ContractDto.FromContract(contract, policyDto, measurementListDto);
     }
 }
