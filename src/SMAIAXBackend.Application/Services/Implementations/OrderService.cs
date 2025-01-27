@@ -40,16 +40,16 @@ public class OrderService(
             string password = $"{Guid.NewGuid()}-{Guid.NewGuid()}";
             await vaultRepository.SaveMqttBrokerCredentialsAsync(smartMeterId, topic, username, password);
             await mqttBrokerRepository.CreateMqttUserAsync(topic, username, password);
-            
-            var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
-            if (userId == null)
-            {
-                throw new UserIdNotFoundException();
-            }
-            var deviceMapping = DeviceMapping.Create(connectorSerialNumber, publicKey, new UserId(Guid.Parse(userId)));
-            await deviceMappingRepository.AddAsync(deviceMapping);
         });
-
+        
+        var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
+        if (userId == null)
+        {
+            throw new UserIdNotFoundException();
+        }
+        var deviceMapping = DeviceMapping.Create(connectorSerialNumber, publicKey, new UserId(Guid.Parse(userId)));
+        await deviceMappingRepository.AddAsync(deviceMapping);
+        
         return connectorSerialNumber;
     }
 

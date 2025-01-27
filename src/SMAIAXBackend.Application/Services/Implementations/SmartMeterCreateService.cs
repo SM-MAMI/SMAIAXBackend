@@ -1,3 +1,6 @@
+using System.IO.Compression;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using SMAIAXBackend.Application.DTOs;
@@ -14,22 +17,33 @@ namespace SMAIAXBackend.Application.Services.Implementations;
 public class SmartMeterCreateService(
     ISmartMeterRepository smartMeterRepository,
     IMqttBrokerRepository mqttBrokerRepository,
+    IDeviceMappingRepository deviceMappingRepository,
+    IHttpContextAccessor httpContextAccessor,
     IVaultRepository vaultRepository,
     ITransactionManager transactionManager,
     ILogger<SmartMeterCreateService> logger) : ISmartMeterCreateService
 {
     public async Task<Guid> AssignSmartMeterAsync(SmartMeterAssignDto smartMeterAssignDto)
     {
-        var smartMeter =
-            await smartMeterRepository.GetSmartMeterBySerialNumberAsync(
-                new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
-
-        if (smartMeter == null)
+        
+        var deviceMapping = await deviceMappingRepository.GetDeviceMappingBySerialNumberAsync(
+            new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
+        if (deviceMapping == null)
         {
-            logger.LogError("Smart meter with id '{SerialNumber} not found.", smartMeterAssignDto.SerialNumber);
-            throw new SmartMeterNotFoundException(new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber));
+            throw new DeviceMappingNotFoundException(smartMeterAssignDto.SerialNumber);
         }
 
+        var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
+        if (userId == null)
+        {
+            throw new UserIdNotFoundException();
+        }
+        deviceMapping.AssignUser(new UserId(Guid.Parse(userId)));
+
+        
+        var smartMeter = SmartMeter.Create(smartMeterRepository.NextIdentity(), smartMeterAssignDto.Name,
+            new ConnectorSerialNumber(smartMeterAssignDto.SerialNumber), deviceMapping.PublicKey);
+        
         if (smartMeterAssignDto.Metadata != null)
         {
             var metadataId = smartMeterRepository.NextMetadataIdentity();
@@ -45,11 +59,11 @@ public class SmartMeterCreateService(
             smartMeter.AddMetadata(metadata);
         }
 
+        await deviceMappingRepository.UpdateAsync(deviceMapping);
+        await smartMeterRepository.AddAsync(smartMeter);
+        
         await transactionManager.ReadCommittedTransactionScope(async () =>
         {
-            smartMeter.Update(smartMeterAssignDto.Name);
-            await smartMeterRepository.UpdateAsync(smartMeter);
-
             string topic = $"smartmeter/{smartMeter.Id.Id}";
             string username = $"smartmeter-{smartMeter.Id.Id}";
             string password = $"{Guid.NewGuid()}-{Guid.NewGuid()}";

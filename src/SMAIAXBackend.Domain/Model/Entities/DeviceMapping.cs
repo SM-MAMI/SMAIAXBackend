@@ -36,4 +36,9 @@ public class DeviceMapping
     {
         AssignedUser = null;
     }
+    
+    public void AssignUser(UserId userId)
+    {
+        AssignedUser = userId;
+    }
 }

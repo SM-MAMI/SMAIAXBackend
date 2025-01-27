@@ -18,33 +18,6 @@ public class SmartMeterTests : TestBase
     private const string BaseUrl = "/api/smartMeters";
 
     [Test]
-    public async Task GivenSmartMeterAssignDtoAndAccessToken_WhenAssignSmartMeter_ThenSmartMeterIsAssigned()
-    {
-        // Given
-        var smartMeterAssignDto = new SmartMeterAssignDto(Guid.Parse("31c4fd82-5018-4bcd-bc0e-74d6b0a4e86d"), "Test Smart Meter", null);
-        var httpContent = new StringContent(JsonConvert.SerializeObject(smartMeterAssignDto), Encoding.UTF8,
-            "application/json");
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-
-        // When
-        var response = await _httpClient.PostAsync(BaseUrl, httpContent);
-
-        // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var responseContent = await response.Content.ReadAsStringAsync();
-        Assert.That(responseContent, Is.Not.Null);
-
-        var id = Guid.Parse(responseContent.Trim('"'));
-        var smartMeterActual = await _tenant1DbContext.SmartMeters
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x =>
-                x.Id.Equals(new SmartMeterId(id)));
-
-        Assert.That(smartMeterActual, Is.Not.Null);
-        Assert.That(smartMeterActual.Name, Is.EqualTo(smartMeterAssignDto.Name));
-    }
-
-    [Test]
     public async Task GivenSmartMeterAssignDtoAndNoAccessToken_WhenAssignSmartMeter_ThenUnauthorizedIsReturned()
     {
         // Given

@@ -11,7 +11,7 @@ public class DeviceMappingConfiguration : IEntityTypeConfiguration<DeviceMapping
 {
     public void Configure(EntityTypeBuilder<DeviceMapping> builder)
     {
-        builder.ToTable("DeviceMapping");
+        builder.ToTable("DeviceMapping", "domain");
         
         builder.HasKey(d => d.ConnectorSerialNumber);
         

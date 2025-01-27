@@ -40,27 +40,24 @@ public class SmartMeterDeleteService(
 
     public async Task RemoveSmartMeterAsync(Guid smartMeterId)
     {
-        await transactionManager.ReadCommittedTransactionScope(async () =>
+        var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(new SmartMeterId(smartMeterId));
+        if (smartMeter == null)
         {
-            var smartMeter = await smartMeterRepository.GetSmartMeterByIdAsync(new SmartMeterId(smartMeterId));
-            if (smartMeter == null)
-            {
-                logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterId);
-                throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
-            }
+            logger.LogError("Smart meter with id '{SmartMeterId} not found.", smartMeterId);
+            throw new SmartMeterNotFoundException(new SmartMeterId(smartMeterId));
+        }
 
-            await smartMeterRepository.DeleteAsync(smartMeter);
+        await smartMeterRepository.DeleteAsync(smartMeter);
 
-            var deviceMapping =
-                await deviceMappingRepository.GetDeviceMappingBySerialNumberAsync(smartMeter.ConnectorSerialNumber);
-            if (deviceMapping == null)
-            {
-                throw new DeviceMappingNotFoundException(smartMeter.ConnectorSerialNumber.SerialNumber);
-            }
+        var deviceMapping =
+            await deviceMappingRepository.GetDeviceMappingBySerialNumberAsync(smartMeter.ConnectorSerialNumber);
+        if (deviceMapping == null)
+        {
+            throw new DeviceMappingNotFoundException(smartMeter.ConnectorSerialNumber.SerialNumber);
+        }
 
-            deviceMapping.DeleteAssignment();
+        deviceMapping.DeleteAssignment();
 
-            await deviceMappingRepository.UpdateAsync(deviceMapping);
-        });
+        await deviceMappingRepository.UpdateAsync(deviceMapping);
     }
 }
