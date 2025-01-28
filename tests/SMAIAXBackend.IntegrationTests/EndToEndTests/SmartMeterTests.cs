@@ -39,9 +39,9 @@ public class SmartMeterTests : TestBase
         // Given
         var smartMetersExpected = new List<SmartMeterOverviewDto>()
         {
-            new(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b"), "Smart Meter 01", 0, 0),
-            new(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd"), "Smart Meter 1", 0, 0),
-            new(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), "Smart Meter 2", 1, 0),
+            new(Guid.Parse("1355836c-ba6c-4e23-b48a-72b77025bd6b"), Guid.Parse("6cd8a1bb-6035-4ffe-9794-279c39701726"), "Smart Meter 01", 0, 0),
+            new(Guid.Parse("5e9db066-1b47-46cc-bbde-0b54c30167cd"), Guid.Parse("d29e0feb-9e98-4484-b6e9-8d6fb5cf2db2"), "Smart Meter 1", 0, 0),
+            new(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), Guid.Parse("3548514f-7923-469d-8e46-d1439a9b5c29"), "Smart Meter 2", 1, 0),
         };
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
@@ -84,7 +84,7 @@ public class SmartMeterTests : TestBase
         var metadataDto = new MetadataDto(Guid.Parse("1c8c8313-6fc4-4ebd-9ca8-8a1267441e06"), DateTime.UtcNow,
             locationDto, 4);
         var smartMeterExpected =
-            new SmartMeterDto(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), "Smart Meter 2", [metadataDto]);
+            new SmartMeterDto(Guid.Parse("f4c70232-6715-4c15-966f-bf4bcef46d39"), Guid.Parse("d4c70232-6715-4c15-966f-bf4bcef26f01"), "Smart Meter 2", [metadataDto]);
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
         // When
