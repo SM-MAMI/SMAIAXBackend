@@ -24,7 +24,7 @@ public class MeasurementConfiguration : IEntityTypeConfiguration<Measurement>
         builder.Property(m => m.Timestamp)
             .HasColumnName("timestamp")
             .IsRequired();
-        builder.HasIndex(m => m.Timestamp).IsDescending(true);
+        builder.HasIndex(m => m.Timestamp);
 
         builder.Property(m => m.VoltagePhase1)
             .HasColumnName("voltagePhase1")
