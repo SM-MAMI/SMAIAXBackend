@@ -93,7 +93,9 @@ public class PolicyListService(
         return matchingPolicies;
     }
 
-    public async Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId, Tenant? tenant = null)
+    public async Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId,
+        MeasurementResolution? measurementResolution, DateTime? startAt,
+        DateTime? endAt, Tenant? tenant = null)
     {
         var policy = tenant == null
             ? await policyRepository.GetPolicyByIdAsync(new PolicyId(policyId))
@@ -104,11 +106,21 @@ public class PolicyListService(
             throw new PolicyNotFoundException(policyId);
         }
 
+        if (!measurementResolution.HasValue)
+        {
+            measurementResolution = policy.MeasurementResolution;
+        }
+        else if (measurementResolution < policy.MeasurementResolution)
+        {
+            throw new InvalidResolutionException(
+                "Given resolution is more specific than the allowed resolution of the policy.");
+        }
+
         if (policy.LocationResolution == LocationResolution.None)
         {
             // If location resolution "does not matter", return all measurements.
             return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(policy.SmartMeterId.Id,
-                policy.MeasurementResolution, null, tenant);
+                measurementResolution.Value, startAt, endAt, tenant);
         }
 
         // Otherwise location resolution must match with metadata.
@@ -124,7 +136,7 @@ public class PolicyListService(
         if (metadata.Count == 0)
         {
             // If no metadata given, policy location resolution can not match because there is no location reference for the measurements.
-            return policy.MeasurementResolution != MeasurementResolution.Raw
+            return measurementResolution.Value != MeasurementResolution.Raw
                 ? new MeasurementListDto(null, [], 0)
                 : new MeasurementListDto([], null, 0);
         }
@@ -139,11 +151,15 @@ public class PolicyListService(
             }
 
             var nextIndex = i + 1;
-            timeSpans.Add((metadata[i].ValidFrom, nextIndex >= metadata!.Count ? null : metadata[i + 1].ValidFrom));
+            var currentStartAt = GetBiggerOrSmallerDate(startAt, metadata[i].ValidFrom, true);
+            var currentEndAt =
+                GetBiggerOrSmallerDate(endAt, nextIndex >= metadata!.Count ? null : metadata[nextIndex].ValidFrom,
+                    false);
+            timeSpans.Add((currentStartAt, currentEndAt));
         }
 
         return await measurementListService.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeter.Id.Id,
-            policy.MeasurementResolution, timeSpans, tenant);
+            measurementResolution.Value, timeSpans, tenant);
     }
 
     private async Task<int> GetMeasurementCountByTenantAndPolicyAsync(Policy policy, Tenant? tenant = null)
@@ -202,5 +218,22 @@ public class PolicyListService(
         }
 
         return policyDtoList;
+    }
+
+    private static DateTime? GetBiggerOrSmallerDate(DateTime? x, DateTime? y, bool useBigger)
+    {
+        // If both are null, return null
+        if (x == null && y == null) return null;
+
+        // If only one is null, return the non-null value
+        if (x == null) return y;
+        if (y == null) return x;
+
+        if (useBigger)
+        {
+            return (x > y) ? x : y;
+        }
+
+        return (x < y) ? x : y;
     }
 }
