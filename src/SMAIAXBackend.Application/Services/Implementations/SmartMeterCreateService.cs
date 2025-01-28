@@ -32,6 +32,10 @@ public class SmartMeterCreateService(
         {
             throw new DeviceMappingNotFoundException(smartMeterAssignDto.SerialNumber);
         }
+        if (deviceMapping.AssignedUser != null)
+        {
+            throw new SmartMeterAlreadyAssignedException(deviceMapping.ConnectorSerialNumber);
+        }
 
         var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
         if (userId == null)

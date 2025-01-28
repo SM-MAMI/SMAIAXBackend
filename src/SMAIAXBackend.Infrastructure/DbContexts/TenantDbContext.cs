@@ -1,6 +1,9 @@
 using System.Globalization;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+using Npgsql;
 
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
@@ -34,6 +37,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJohnDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("070dec95-56bb-4154-a2c4-c26faf9fff4d"));
+        ConnectorSerialNumber connectorSerialNumber1 = new(Guid.Parse("4ae9a3e1-1426-484c-a696-c26393a5b307"));
         Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-2),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             4, smartMeter1Id);
@@ -63,7 +67,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJaneDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("95cc68ed-c94e-40de-851b-b95aaacfb76c"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-1),
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             2, smartMeter1Id);
         SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
@@ -92,7 +96,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForMaxMustermann()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("96ae137c-a687-4423-b7ff-4cb0b238bfc7"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-2),
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             6, smartMeter1Id);
         SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
@@ -124,10 +128,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 
         await Database.OpenConnectionAsync();
         const string sqlTemplate = @"
-            INSERT INTO domain.""Measurement""(""smartMeterId"", ""timestamp"", ""voltagePhase1"", ""voltagePhase2"", 
-            ""voltagePhase3"", ""currentPhase1"", ""currentPhase2"", ""currentPhase3"", ""positiveActivePower"", 
-            ""negativeActivePower"", ""positiveReactiveEnergyTotal"", ""negativeReactiveEnergyTotal"", 
-            ""positiveActiveEnergyTotal"", ""negativeActiveEnergyTotal"") 
+            INSERT INTO domain.""Measurement""(""positiveActivePower"", ""positiveActiveEnergyTotal"", ""negativeActivePower"", ""negativeActiveEnergyTotal"", ""reactiveEnergyQuadrant1Total"", ""reactiveEnergyQuadrant3Total"", ""totalPower"", ""currentPhase1"", ""voltagePhase1"", ""currentPhase2"", ""voltagePhase2"", ""currentPhase3"", ""voltagePhase3"", ""uptime"", ""timestamp"", ""smartMeterId"") 
             VALUES ({0});
         ";
 
@@ -140,20 +141,22 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         for (var timestamp = startDate; timestamp <= endDate; timestamp += interval)
         {
             var values = $@"
-                '{smartMeterId.Id}',                
+                {random.Next(100, 200)}, 
+                {random.Next(1000000, 2000000)}, 
+                {random.Next(0, 10)}, 
+                {random.Next(0, 10)}, 
+                {random.Next(1000, 5000)}, 
+                {random.Next(500000, 1000000)}, 
+                {random.Next(100, 200)}, 
+                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
+                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
+                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
+                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
+                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
+                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
+                '{timestamp.Subtract(startDate):dd\.hh\:mm\:ss}', 
                 '{timestamp:O}', 
-                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (5.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (1.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (100.0 - 80.0) + 80.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (30.0 - 20.0) + 20.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (800.0 - 700.0) + 700.0, 2).ToString(CultureInfo.InvariantCulture)}, 
-                {Math.Round(random.NextDouble() * (50.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}
+                '{smartMeterId.Id}'
             ";
 
             insertStatements.Add(string.Format(sqlTemplate, values));
@@ -175,18 +178,6 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
             insertCommand.CommandText = string.Join(";", missingStatements);
             await insertCommand.ExecuteNonQueryAsync();
         }
-
-        // update views
-        await Database.ExecuteSqlRawAsync(
-            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerMinute\"', null, null);");
-        await Database.ExecuteSqlRawAsync(
-            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerQuarterHour\"', null, null);");
-        await Database.ExecuteSqlRawAsync(
-            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerHour\"', null, null);");
-        await Database.ExecuteSqlRawAsync(
-            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerDay\"', null, null);");
-        await Database.ExecuteSqlRawAsync(
-            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerWeek\"', null, null);");
 
         await Database.CloseConnectionAsync();
     }
