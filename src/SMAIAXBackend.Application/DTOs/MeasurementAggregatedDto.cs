@@ -6,7 +6,6 @@ namespace SMAIAXBackend.Application.DTOs;
 
 public class MeasurementAggregatedDto(
     DateTime timestamp,
-    string uptime,
     double minPositiveActivePower,
     double maxPositiveActivePower,
     double avgPositiveActivePower,
@@ -31,10 +30,6 @@ public class MeasurementAggregatedDto(
     double maxReactiveEnergyQuadrant3Total,
     double avgReactiveEnergyQuadrant3Total,
     double medReactiveEnergyQuadrant3Total,
-    double minTotalPower,
-    double maxTotalPower,
-    double avgTotalPower,
-    double medTotalPower,
     double minCurrentPhase1,
     double maxCurrentPhase1,
     double avgCurrentPhase1,
@@ -63,8 +58,6 @@ public class MeasurementAggregatedDto(
 {
     [Required]
     public DateTime Timestamp { get; set; } = timestamp;
-    [Required]
-    public string Uptime { get; set; } = uptime;
 
     [Required]
     public double MinPositiveActivePower { get; set; } = minPositiveActivePower;
@@ -119,15 +112,6 @@ public class MeasurementAggregatedDto(
     public double AvgReactiveEnergyQuadrant3Total { get; set; } = avgReactiveEnergyQuadrant3Total;
     [Required]
     public double MedReactiveEnergyQuadrant3Total { get; set; } = medReactiveEnergyQuadrant3Total;
-
-    [Required]
-    public double MinTotalPower { get; set; } = minTotalPower;
-    [Required]
-    public double MaxTotalPower { get; set; } = maxTotalPower;
-    [Required]
-    public double AvgTotalPower { get; set; } = avgTotalPower;
-    [Required]
-    public double MedTotalPower { get; set; } = medTotalPower;
 
     [Required]
     public double MinCurrentPhase1 { get; set; } = minCurrentPhase1;
@@ -190,7 +174,6 @@ public class MeasurementAggregatedDto(
     {
         return new MeasurementAggregatedDto(
             measurement.Timestamp,
-            measurement.Uptime,
             measurement.MinPositiveActivePower,
             measurement.MaxPositiveActivePower,
             measurement.AvgPositiveActivePower,
@@ -215,10 +198,6 @@ public class MeasurementAggregatedDto(
             measurement.MaxReactiveEnergyQuadrant3Total,
             measurement.AvgReactiveEnergyQuadrant3Total,
             measurement.MedReactiveEnergyQuadrant3Total,
-            measurement.MinTotalPower,
-            measurement.MaxTotalPower,
-            measurement.AvgTotalPower,
-            measurement.MedTotalPower,
             measurement.MinCurrentPhase1,
             measurement.MaxCurrentPhase1,
             measurement.AvgCurrentPhase1,
