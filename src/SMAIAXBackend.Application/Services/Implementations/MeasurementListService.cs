@@ -13,7 +13,7 @@ public class MeasurementListService(
     ISmartMeterRepository smartMeterRepository) : IMeasurementListService
 {
     public async Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(
-        Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt,  Tenant? tenant = null)
+        Guid smartMeterId, MeasurementResolution measurementResolution, DateTime? startAt, DateTime? endAt, Tenant? tenant = null)
     {
         return await GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId, measurementResolution,
             new List<(DateTime?, DateTime?)> { (startAt, endAt) }, tenant);

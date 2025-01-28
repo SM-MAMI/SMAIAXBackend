@@ -11,9 +11,9 @@ public static class GetMeasurementsByPolicyEndpoint
 {
     public static async Task<Ok<MeasurementListDto>> Handle(
         IPolicyListService policyListService,
-        [FromRoute] Guid id,[FromQuery] MeasurementResolution? measurementResolution, [FromQuery] DateTime? startAt, [FromQuery] DateTime? endAt)
+        [FromRoute] Guid id, [FromQuery] MeasurementResolution? measurementResolution, [FromQuery] DateTime? startAt, [FromQuery] DateTime? endAt)
     {
-        var measurementList = await policyListService.GetMeasurementsByPolicyIdAsync(id,measurementResolution, startAt, endAt);
+        var measurementList = await policyListService.GetMeasurementsByPolicyIdAsync(id, measurementResolution, startAt, endAt);
         return TypedResults.Ok(measurementList);
     }
 }
