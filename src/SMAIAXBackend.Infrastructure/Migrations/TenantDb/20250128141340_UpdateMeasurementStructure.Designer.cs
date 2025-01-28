@@ -12,8 +12,8 @@ using SMAIAXBackend.Infrastructure.DbContexts;
 namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20250104111911_CreateMaterializedViewsForMeasurements")]
-    partial class CreateMaterializedViewsForMeasurements
+    [Migration("20250128141340_UpdateMeasurementStructure")]
+    partial class UpdateMeasurementStructure
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,10 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("double precision")
                         .HasColumnName("negativeActivePower");
 
+                    b.Property<double>("NegativeReactiveEnergyTotal")
+                        .HasColumnType("double precision")
+                        .HasColumnName("negativeReactiveEnergyTotal");
+
                     b.Property<double>("PositiveActiveEnergyTotal")
                         .HasColumnType("double precision")
                         .HasColumnName("positiveActiveEnergyTotal");
@@ -55,13 +59,9 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                         .HasColumnType("double precision")
                         .HasColumnName("positiveActivePower");
 
-                    b.Property<double>("ReactiveEnergyQuadrant1Total")
+                    b.Property<double>("PositiveReactiveEnergyTotal")
                         .HasColumnType("double precision")
-                        .HasColumnName("reactiveEnergyQuadrant1Total");
-
-                    b.Property<double>("ReactiveEnergyQuadrant3Total")
-                        .HasColumnType("double precision")
-                        .HasColumnName("reactiveEnergyQuadrant3Total");
+                        .HasColumnName("positiveReactiveEnergyTotal");
 
                     b.Property<Guid>("SmartMeterId")
                         .HasColumnType("uuid")
@@ -70,15 +70,6 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");
-
-                    b.Property<double>("TotalPower")
-                        .HasColumnType("double precision")
-                        .HasColumnName("totalPower");
-
-                    b.Property<string>("Uptime")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("uptime");
 
                     b.Property<double>("VoltagePhase1")
                         .HasColumnType("double precision")
@@ -173,27 +164,6 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                     b.ToTable("Policy", "domain");
                 });
 
-            modelBuilder.Entity("SMAIAXBackend.Domain.Model.Entities.PolicyRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("IsAutomaticContractingEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isAutomaticContractingEnabled");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("state");
-
-                    b.HasKey("Id")
-                        .HasName("pK_PolicyRequest");
-
-                    b.ToTable("PolicyRequest", "domain");
-                });
-
             modelBuilder.Entity("SMAIAXBackend.Domain.Model.Entities.SmartMeter", b =>
                 {
                     b.Property<Guid>("Id")
@@ -270,54 +240,6 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
                     b.Navigation("Location");
 
                     b.Navigation("SmartMeter");
-                });
-
-            modelBuilder.Entity("SMAIAXBackend.Domain.Model.Entities.PolicyRequest", b =>
-                {
-                    b.OwnsOne("SMAIAXBackend.Domain.Model.ValueObjects.PolicyFilter", "PolicyFilter", b1 =>
-                        {
-                            b1.Property<Guid>("PolicyRequestId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("LocationResolution")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("locationResolution");
-
-                            b1.Property<string>("Locations")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("locations");
-
-                            b1.Property<int>("MaxHouseHoldSize")
-                                .HasColumnType("integer")
-                                .HasColumnName("maxHouseHoldSize");
-
-                            b1.Property<decimal>("MaxPrice")
-                                .HasColumnType("numeric")
-                                .HasColumnName("maxPrice");
-
-                            b1.Property<string>("MeasurementResolution")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("measurementResolution");
-
-                            b1.Property<int>("MinHouseHoldSize")
-                                .HasColumnType("integer")
-                                .HasColumnName("minHouseHoldSize");
-
-                            b1.HasKey("PolicyRequestId");
-
-                            b1.ToTable("PolicyRequest", "domain");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PolicyRequestId")
-                                .HasConstraintName("fK_PolicyRequest_PolicyRequest_id");
-                        });
-
-                    b.Navigation("PolicyFilter")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SMAIAXBackend.Domain.Model.Entities.SmartMeter", b =>

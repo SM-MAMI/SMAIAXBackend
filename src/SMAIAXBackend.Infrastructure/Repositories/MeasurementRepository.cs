@@ -77,62 +77,7 @@ public class MeasurementRepository(
 
         string tableName = GetTableName(measurementResolution);
         string sqlQuery = $"""
-                           SELECT
-                           "timestamp",
-                           "uptime",
-                           "minPositiveActivePower",
-                           "maxPositiveActivePower",
-                           "avgPositiveActivePower",
-                           "medPositiveActivePower",
-                           "minPositiveActiveEnergyTotal",
-                           "maxPositiveActiveEnergyTotal",
-                           "avgPositiveActiveEnergyTotal",
-                           "medPositiveActiveEnergyTotal",
-                           "minNegativeActivePower",
-                           "maxNegativeActivePower",
-                           "avgNegativeActivePower",
-                           "medNegativeActivePower",
-                           "minNegativeActiveEnergyTotal",
-                           "maxNegativeActiveEnergyTotal",
-                           "avgNegativeActiveEnergyTotal",
-                           "medNegativeActiveEnergyTotal",
-                           "minReactiveEnergyQuadrant1Total",
-                           "maxReactiveEnergyQuadrant1Total",
-                           "avgReactiveEnergyQuadrant1Total",
-                           "medReactiveEnergyQuadrant1Total",
-                           "minReactiveEnergyQuadrant3Total",
-                           "maxReactiveEnergyQuadrant3Total",
-                           "avgReactiveEnergyQuadrant3Total",
-                           "medReactiveEnergyQuadrant3Total",
-                           "minTotalPower",
-                           "maxTotalPower",
-                           "avgTotalPower",
-                           "medTotalPower",
-                           "minCurrentPhase1",
-                           "maxCurrentPhase1",
-                           "avgCurrentPhase1",
-                           "medCurrentPhase1",
-                           "minVoltagePhase1",
-                           "maxVoltagePhase1",
-                           "avgVoltagePhase1",
-                           "medVoltagePhase1",
-                           "minCurrentPhase2",
-                           "maxCurrentPhase2",
-                           "avgCurrentPhase2",
-                           "medCurrentPhase2",
-                           "minVoltagePhase2",
-                           "maxVoltagePhase2",
-                           "avgVoltagePhase2",
-                           "medVoltagePhase2",
-                           "minCurrentPhase3",
-                           "maxCurrentPhase3",
-                           "avgCurrentPhase3",
-                           "medCurrentPhase3",
-                           "minVoltagePhase3",
-                           "maxVoltagePhase3",
-                           "avgVoltagePhase3",
-                           "medVoltagePhase3",
-                           "amountOfMeasurements"
+                           SELECT *
                            FROM "domain".{tableName}
                            WHERE "smartMeterId" = @smartMeterId AND (@startAt IS NULL OR "timestamp" >= @startAt) AND (@endAt IS NULL OR "timestamp" <= @endAt)
                            """;
@@ -147,92 +92,137 @@ public class MeasurementRepository(
         var count = 0;
         while (await result.ReadAsync())
         {
-            AggregatedMeasurement measurement = new AggregatedMeasurement(
-                // General
-                result["uptime"]?.ToString() ?? string.Empty,
-                result.GetDateTime("timestamp"),
+            #region General
 
-                // Positive Active Power Section
-                result.GetDouble("minPositiveActivePower"),
-                result.GetDouble("maxPositiveActivePower"),
-                result.GetDouble("avgPositiveActivePower"),
-                result.GetDouble("medPositiveActivePower"),
+            var timestamp = result.GetDateTime("timestamp");
+            var amountOfMeasurements = result.GetInt32("amountOfMeasurements");
 
-                // Positive Active Energy Total Section
-                result.GetDouble("minPositiveActiveEnergyTotal"),
-                result.GetDouble("maxPositiveActiveEnergyTotal"),
-                result.GetDouble("avgPositiveActiveEnergyTotal"),
-                result.GetDouble("medPositiveActiveEnergyTotal"),
+            #endregion
 
-                // Negative Active Power Section
-                result.GetDouble("minNegativeActivePower"),
-                result.GetDouble("maxNegativeActivePower"),
-                result.GetDouble("avgNegativeActivePower"),
-                result.GetDouble("medNegativeActivePower"),
+            #region Voltage1
 
-                // Negative Active Energy Total Section
-                result.GetDouble("minNegativeActiveEnergyTotal"),
-                result.GetDouble("maxNegativeActiveEnergyTotal"),
-                result.GetDouble("avgNegativeActiveEnergyTotal"),
-                result.GetDouble("medNegativeActiveEnergyTotal"),
+            var minVoltage1 = result.GetDouble("minVoltagePhase1");
+            var maxVoltage1 = result.GetDouble("maxVoltagePhase1");
+            var avgVoltage1 = result.GetDouble("avgVoltagePhase1");
+            var medVoltage1 = result.GetDouble("medVoltagePhase1");
 
-                // Reactive Energy Quadrant 1 Section
-                result.GetDouble("minReactiveEnergyQuadrant1Total"),
-                result.GetDouble("maxReactiveEnergyQuadrant1Total"),
-                result.GetDouble("avgReactiveEnergyQuadrant1Total"),
-                result.GetDouble("medReactiveEnergyQuadrant1Total"),
+            #endregion
 
-                // Reactive Energy Quadrant 3 Section
-                result.GetDouble("minReactiveEnergyQuadrant3Total"),
-                result.GetDouble("maxReactiveEnergyQuadrant3Total"),
-                result.GetDouble("avgReactiveEnergyQuadrant3Total"),
-                result.GetDouble("medReactiveEnergyQuadrant3Total"),
+            #region Voltage2
 
-                // Total Power Section
-                result.GetDouble("minTotalPower"),
-                result.GetDouble("maxTotalPower"),
-                result.GetDouble("avgTotalPower"),
-                result.GetDouble("medTotalPower"),
+            var minVoltage2 = result.GetDouble("minVoltagePhase2");
+            var maxVoltage2 = result.GetDouble("maxVoltagePhase2");
+            var avgVoltage2 = result.GetDouble("avgVoltagePhase2");
+            var medVoltage2 = result.GetDouble("medVoltagePhase2");
 
-                // Current Phase 1 Section
-                result.GetDouble("minCurrentPhase1"),
-                result.GetDouble("maxCurrentPhase1"),
-                result.GetDouble("avgCurrentPhase1"),
-                result.GetDouble("medCurrentPhase1"),
+            #endregion
 
-                // Voltage Phase 1 Section
-                result.GetDouble("minVoltagePhase1"),
-                result.GetDouble("maxVoltagePhase1"),
-                result.GetDouble("avgVoltagePhase1"),
-                result.GetDouble("medVoltagePhase1"),
+            #region Voltage3
 
-                // Current Phase 2 Section
-                result.GetDouble("minCurrentPhase2"),
-                result.GetDouble("maxCurrentPhase2"),
-                result.GetDouble("avgCurrentPhase2"),
-                result.GetDouble("medCurrentPhase2"),
+            var minVoltage3 = result.GetDouble("minVoltagePhase3");
+            var maxVoltage3 = result.GetDouble("maxVoltagePhase3");
+            var avgVoltage3 = result.GetDouble("avgVoltagePhase3");
+            var medVoltage3 = result.GetDouble("medVoltagePhase3");
 
-                // Voltage Phase 2 Section
-                result.GetDouble("minVoltagePhase2"),
-                result.GetDouble("maxVoltagePhase2"),
-                result.GetDouble("avgVoltagePhase2"),
-                result.GetDouble("medVoltagePhase2"),
+            #endregion
 
-                // Current Phase 3 Section
-                result.GetDouble("minCurrentPhase3"),
-                result.GetDouble("maxCurrentPhase3"),
-                result.GetDouble("avgCurrentPhase3"),
-                result.GetDouble("medCurrentPhase3"),
+            #region CurrentPhase1
 
-                // Voltage Phase 3 Section
-                result.GetDouble("minVoltagePhase3"),
-                result.GetDouble("maxVoltagePhase3"),
-                result.GetDouble("avgVoltagePhase3"),
-                result.GetDouble("medVoltagePhase3"),
+            var minCurrentPhase1 = result.GetDouble("minCurrentPhase1");
+            var maxCurrentPhase1 = result.GetDouble("maxCurrentPhase1");
+            var avgCurrentPhase1 = result.GetDouble("avgCurrentPhase1");
+            var medCurrentPhase1 = result.GetDouble("medCurrentPhase1");
 
-                // Measurements
-                result.GetInt32("amountOfMeasurements")
+            #endregion
+
+            #region CurrentPhase2
+
+            var minCurrentPhase2 = result.GetDouble("minCurrentPhase2");
+            var maxCurrentPhase2 = result.GetDouble("maxCurrentPhase2");
+            var avgCurrentPhase2 = result.GetDouble("avgCurrentPhase2");
+            var medCurrentPhase2 = result.GetDouble("medCurrentPhase2");
+
+            #endregion
+
+            #region CurrentPhase3
+
+            var minCurrentPhase3 = result.GetDouble("minCurrentPhase3");
+            var maxCurrentPhase3 = result.GetDouble("maxCurrentPhase3");
+            var avgCurrentPhase3 = result.GetDouble("avgCurrentPhase3");
+            var medCurrentPhase3 = result.GetDouble("medCurrentPhase3");
+
+            #endregion
+
+            #region PositiveActivePower
+
+            var minPositiveActivePower = result.GetDouble("minPositiveActivePower");
+            var maxPositiveActivePower = result.GetDouble("maxPositiveActivePower");
+            var avgPositiveActivePower = result.GetDouble("avgPositiveActivePower");
+            var medPositiveActivePower = result.GetDouble("medPositiveActivePower");
+
+            #endregion
+
+            #region NegativeActivePower
+
+            var minNegativeActivePower = result.GetDouble("minNegativeActivePower");
+            var maxNegativeActivePower = result.GetDouble("maxNegativeActivePower");
+            var avgNegativeActivePower = result.GetDouble("avgNegativeActivePower");
+            var medNegativeActivePower = result.GetDouble("medNegativeActivePower");
+
+            #endregion
+
+            #region PositiveReactiveEnergyTotal
+
+            var minPositiveReactiveEnergyTotal = result.GetDouble("minPositiveReactiveEnergyTotal");
+            var maxPositiveReactiveEnergyTotal = result.GetDouble("maxPositiveReactiveEnergyTotal");
+            var avgPositiveReactiveEnergyTotal = result.GetDouble("avgPositiveReactiveEnergyTotal");
+            var medPositiveReactiveEnergyTotal = result.GetDouble("medPositiveReactiveEnergyTotal");
+
+            #endregion
+
+            #region NegativeReactiveEnergyTotal
+
+            var minNegativeReactiveEnergyTotal = result.GetDouble("minNegativeReactiveEnergyTotal");
+            var maxNegativeReactiveEnergyTotal = result.GetDouble("maxNegativeReactiveEnergyTotal");
+            var avgNegativeReactiveEnergyTotal = result.GetDouble("avgNegativeReactiveEnergyTotal");
+            var medNegativeReactiveEnergyTotal = result.GetDouble("medNegativeReactiveEnergyTotal");
+
+            #endregion
+
+            #region PositiveActiveEnergyTotal
+
+            var minPositiveActiveEnergyTotal = result.GetDouble("minPositiveActiveEnergyTotal");
+            var maxPositiveActiveEnergyTotal = result.GetDouble("maxPositiveActiveEnergyTotal");
+            var avgPositiveActiveEnergyTotal = result.GetDouble("avgPositiveActiveEnergyTotal");
+            var medPositiveActiveEnergyTotal = result.GetDouble("medPositiveActiveEnergyTotal");
+
+            #endregion
+
+            #region NegativeActiveEnergyTotal
+
+            var minNegativeActiveEnergyTotal = result.GetDouble("minNegativeActiveEnergyTotal");
+            var maxNegativeActiveEnergyTotal = result.GetDouble("maxNegativeActiveEnergyTotal");
+            var avgNegativeActiveEnergyTotal = result.GetDouble("avgNegativeActiveEnergyTotal");
+            var medNegativeActiveEnergyTotal = result.GetDouble("medNegativeActiveEnergyTotal");
+
+            #endregion
+
+            AggregatedMeasurement measurement = new(
+                timestamp, amountOfMeasurements,
+                minVoltage1, maxVoltage1, avgVoltage1, medVoltage1,
+                minVoltage2, maxVoltage2, avgVoltage2, medVoltage2,
+                minVoltage3, maxVoltage3, avgVoltage3, medVoltage3,
+                minCurrentPhase1, maxCurrentPhase1, avgCurrentPhase1, medCurrentPhase1,
+                minCurrentPhase2, maxCurrentPhase2, avgCurrentPhase2, medCurrentPhase2,
+                minCurrentPhase3, maxCurrentPhase3, avgCurrentPhase3, medCurrentPhase3,
+                minPositiveActivePower, maxPositiveActivePower, avgPositiveActivePower, medPositiveActivePower,
+                minNegativeActivePower, maxNegativeActivePower, avgNegativeActivePower, medNegativeActivePower,
+                minPositiveReactiveEnergyTotal, maxPositiveReactiveEnergyTotal, avgPositiveReactiveEnergyTotal, medPositiveReactiveEnergyTotal,
+                minNegativeReactiveEnergyTotal, maxNegativeReactiveEnergyTotal, avgNegativeReactiveEnergyTotal, medNegativeReactiveEnergyTotal,
+                minPositiveActiveEnergyTotal, maxPositiveActiveEnergyTotal, avgPositiveActiveEnergyTotal, medPositiveActiveEnergyTotal,
+                minNegativeActiveEnergyTotal, maxNegativeActiveEnergyTotal, avgNegativeActiveEnergyTotal, medNegativeActiveEnergyTotal
             );
+
             aggregatedMeasurements.Add(measurement);
             count += 1;
         }

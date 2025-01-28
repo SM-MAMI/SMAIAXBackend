@@ -195,28 +195,31 @@ public class TestBase
         // can't be inserted via "AddAsync".
         await _tenant1DbContext.Database.OpenConnectionAsync();
         var sql = @"
-            INSERT INTO domain.""Measurement""(""positiveActivePower"", ""positiveActiveEnergyTotal"", ""negativeActivePower"", ""negativeActiveEnergyTotal"", ""reactiveEnergyQuadrant1Total"", ""reactiveEnergyQuadrant3Total"", ""totalPower"", ""currentPhase1"", ""voltagePhase1"", ""currentPhase2"", ""voltagePhase2"", ""currentPhase3"", ""voltagePhase3"", ""uptime"", ""timestamp"", ""smartMeterId"") 
-            VALUES (@positiveActivePower, @positiveActiveEnergyTotal, @negativeActivePower, @negativeActiveEnergyTotal, @reactiveEnergyQuadrant1Total, @reactiveEnergyQuadrant3Total, @totalPower, @currentPhase1, @voltagePhase1, @currentPhase2, @voltagePhase2, @currentPhase3, @voltagePhase3, @uptime, @timestamp, @smartMeterId);
+             INSERT INTO domain.""Measurement""(""smartMeterId"", ""timestamp"", ""voltagePhase1"", ""voltagePhase2"", 
+            ""voltagePhase3"", ""currentPhase1"", ""currentPhase2"", ""currentPhase3"", ""positiveActivePower"", 
+            ""negativeActivePower"", ""positiveReactiveEnergyTotal"", ""negativeReactiveEnergyTotal"", 
+            ""positiveActiveEnergyTotal"", ""negativeActiveEnergyTotal"") 
+             VALUES (@smartMeterId, @timestamp, @voltagePhase1, @voltagePhase2, @voltagePhase3, @currentPhase1, 
+                     @currentPhase2, @currentPhase3, @positiveActivePower, @negativeActivePower, @positiveReactiveEnergyTotal, 
+                     @negativeReactiveEnergyTotal, @positiveActiveEnergyTotal, @negativeActiveEnergyTotal);
         ";
         await using var insertCommand = _tenant1DbContext.Database.GetDbConnection().CreateCommand();
         insertCommand.CommandText = sql;
 
-        insertCommand.Parameters.Add(new NpgsqlParameter("@positiveActivePower", 160));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@positiveActiveEnergyTotal", 1137778));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@negativeActivePower", 1));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@negativeActiveEnergyTotal", 1));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@reactiveEnergyQuadrant1Total", 3837));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@reactiveEnergyQuadrant3Total", 717727));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@totalPower", 160));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase1", 1.03));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase1", 229.80));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase2", 0.42));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase2", 229.00));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase3", 0.17));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase3", 229.60));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@uptime", "0000:01:49:41"));
-        insertCommand.Parameters.Add(new NpgsqlParameter("@timestamp", DateTime.UtcNow.AddDays(-1)));
         insertCommand.Parameters.Add(new NpgsqlParameter("@smartMeterId", smartMeter1.Id.Id));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@timestamp", DateTime.UtcNow.AddDays(-1)));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase1", 229.80));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase2", 229.00));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@voltagePhase3", 229.60));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase1", 1.03));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase2", 0.42));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@currentPhase3", 0.17));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@positiveActivePower", 160));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@negativeActivePower", 1));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@positiveReactiveEnergyTotal", 3837));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@negativeReactiveEnergyTotal", 717727));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@positiveActiveEnergyTotal", 1137778));
+        insertCommand.Parameters.Add(new NpgsqlParameter("@negativeActiveEnergyTotal", 1));
 
         await insertCommand.ExecuteNonQueryAsync();
         await _tenant1DbContext.Database.CloseConnectionAsync();
