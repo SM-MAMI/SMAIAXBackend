@@ -143,8 +143,8 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         for (var timestamp = startDate; timestamp <= endDate; timestamp += interval)
         {
             var values = $@"
-                '{timestamp.Subtract(startDate):dd\.hh\:mm\:ss}', 
-                '{smartMeterId.Id}',
+                '{smartMeterId.Id}',                
+                '{timestamp:O}', 
                 {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
                 {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
                 {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
