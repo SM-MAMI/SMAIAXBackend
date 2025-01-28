@@ -1,13 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 
 using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.ValueObjects;
 
 namespace SMAIAXBackend.Application.DTOs;
 
-public class SmartMeterOverviewDto(Guid id, string name, int metadataCount, int policyCount)
+public class SmartMeterOverviewDto(Guid id, Guid connectorSerialNumber, string name, int metadataCount, int policyCount)
 {
     [Required]
     public Guid Id { get; set; } = id;
+    [Required] 
+    public Guid ConnectorSerialNumber { get; set; } = connectorSerialNumber;
     [Required]
     public string Name { get; set; } = name;
     [Required]
@@ -17,7 +20,7 @@ public class SmartMeterOverviewDto(Guid id, string name, int metadataCount, int 
 
     public static SmartMeterOverviewDto FromSmartMeter(SmartMeter smartMeter, List<Policy> policies)
     {
-        return new SmartMeterOverviewDto(smartMeter.Id.Id, smartMeter.Name,
+        return new SmartMeterOverviewDto(smartMeter.Id.Id, smartMeter.ConnectorSerialNumber.SerialNumber, smartMeter.Name,
             smartMeter.Metadata.Count, policies.Count);
     }
 }
