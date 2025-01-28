@@ -24,6 +24,7 @@ public class PolicyListServiceTests
     private Mock<ISmartMeterRepository> _smartMeterRepositoryMock;
     private Mock<IMeasurementListService> _measurementListServiceMock;
     private Mock<IMeasurementRepository> _measurementRepositoryMock;
+    private Mock<IContractRepository> _contractRepositoryMock;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -34,10 +35,10 @@ public class PolicyListServiceTests
         _tenantRepositoryMock = new Mock<ITenantRepository>();
         _measurementListServiceMock = new Mock<IMeasurementListService>();
         _measurementRepositoryMock = new Mock<IMeasurementRepository>();
+        _contractRepositoryMock = new Mock<IContractRepository>();
         _policyListService = new PolicyListService(_tenantRepositoryMock.Object, _smartMeterRepositoryMock.Object,
             _measurementRepositoryMock.Object, _policyRepositoryMock.Object, _measurementListServiceMock.Object,
-            _tenantContextServiceMock.Object,
-            Mock.Of<ILogger<PolicyListService>>());
+            _tenantContextServiceMock.Object, _contractRepositoryMock.Object, Mock.Of<ILogger<PolicyListService>>());
     }
 
     [Test]
@@ -152,6 +153,7 @@ public class PolicyListServiceTests
         _tenantRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(tenants);
         _policyRepositoryMock.Setup(repo => repo.GetPoliciesByTenantAsync(tenants[0])).ReturnsAsync(policiesExpected);
         _policyRepositoryMock.Setup(repo => repo.GetPoliciesByTenantAsync(tenants[1])).ReturnsAsync([]);
+        _contractRepositoryMock.Setup(repo => repo.GetContractsForTenantAsync(currentTenant.Id)).ReturnsAsync([]);
 
         // When
         var policiesActual = await _policyListService.GetFilteredPoliciesAsync(maxPrice, measurementResolution, null);

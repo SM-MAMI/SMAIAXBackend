@@ -18,6 +18,7 @@ public class PolicyListService(
     IPolicyRepository policyRepository,
     IMeasurementListService measurementListService,
     ITenantContextService tenantContextService,
+    IContractRepository contractRepository,
     ILogger<PolicyListService> logger) : IPolicyListService
 {
     public async Task<List<PolicyDto>> GetPoliciesBySmartMeterIdAsync(SmartMeterId smartMeterId)
@@ -71,12 +72,17 @@ public class PolicyListService(
 
         var currentTenant = await tenantContextService.GetCurrentTenantAsync();
         var tenants = await tenantRepository.GetAllAsync();
+        var contracts = await contractRepository.GetContractsForTenantAsync(currentTenant.Id);
         var matchingPolicies = new List<PolicyDto>();
 
         foreach (var tenant in tenants.Where(t => !t.Equals(currentTenant)))
         {
             var policies = await policyRepository.GetPoliciesByTenantAsync(tenant);
-            var filteredPolicies = policies.Where(policy => specification.IsSatisfiedBy(policy)).ToList();
+            var filteredPolicies = policies
+                .Where(policy => specification.IsSatisfiedBy(policy))
+                .Where(policy => !contracts.Any(contract => contract.PolicyId.Equals(policy.Id)))
+                .ToList();
+
             foreach (var policy in filteredPolicies)
             {
                 var measurementCount = await GetMeasurementCountByTenantAndPolicyAsync(policy, tenant);
@@ -94,7 +100,7 @@ public class PolicyListService(
             : await policyRepository.GetPolicyByTenantAsync(tenant, new PolicyId(policyId));
         if (policy == null)
         {
-            logger.LogError("Policy with id '{policyId}' not found.", policyId);
+            logger.LogError("Policy with id '{PolicyId}' not found.", policyId);
             throw new PolicyNotFoundException(policyId);
         }
 
