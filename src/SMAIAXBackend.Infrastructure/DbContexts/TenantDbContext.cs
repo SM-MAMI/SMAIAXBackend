@@ -38,15 +38,16 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-2),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             4, smartMeter1Id);
-        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
-        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour,
+        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata], connectorSerialNumber1, "publicKey1");
+        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "Hourly Policy", MeasurementResolution.Hour,
             LocationResolution.None, 100, smartMeter1Id);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Raw,
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "Raw continental Policy", MeasurementResolution.Raw,
             LocationResolution.Continent, 1999, smartMeter1Id);
 
         SmartMeterId smartMeter2Id = new(Guid.Parse("74b243fd-188e-48a0-b5d1-4916f5464b0a"));
-        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", []);
-        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy3", MeasurementResolution.Day,
+        ConnectorSerialNumber connectorSerialNumber2 = new(Guid.Parse("f49bc7e7-50e2-4f90-86d2-e9b6a3f1e832"));
+        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [], connectorSerialNumber2, "publicKey2");
+        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "Daily Policy", MeasurementResolution.Day,
             LocationResolution.StreetName, 999, smartMeter2Id);
 
         await Policies.AddAsync(policy);
@@ -64,18 +65,20 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJaneDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("95cc68ed-c94e-40de-851b-b95aaacfb76c"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
+        ConnectorSerialNumber connectorSerialNumber1 = new(Guid.Parse("e1045a0c-2457-4fb2-af76-0642ef03f5ff"));
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-1),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             2, smartMeter1Id);
-        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
-        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.QuarterHour,
+        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata], connectorSerialNumber1, "publicKey1");
+        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "Quarter Hourly Policy", MeasurementResolution.QuarterHour,
             LocationResolution.None, 100, smartMeter1Id);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Minute,
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "Minutely continental Policy", MeasurementResolution.Minute,
             LocationResolution.Continent, 2000, smartMeter1Id);
 
         SmartMeterId smartMeter2Id = new(Guid.Parse("1da14768-a0ce-432e-93b8-1b31e732c4af"));
-        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", []);
-        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy3", MeasurementResolution.Week,
+        ConnectorSerialNumber connectorSerialNumber2 = new(Guid.Parse("04c328e6-9e3d-45ea-a6d6-00aaa2aaf7d9"));
+        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [], connectorSerialNumber2, "publicKey2");
+        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "Weekly Policy with street name", MeasurementResolution.Week,
             LocationResolution.StreetName, 200, smartMeter2Id);
 
         await Policies.AddAsync(policy);
@@ -93,18 +96,20 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForMaxMustermann()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("96ae137c-a687-4423-b7ff-4cb0b238bfc7"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
+        ConnectorSerialNumber connectorSerialNumber1 = new(Guid.Parse("0aaf9e08-4beb-46a4-a936-b535fb3dd756"));
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-3),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             6, smartMeter1Id);
-        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
-        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Week,
+        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata], connectorSerialNumber1, "publicKey1");
+        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "Weekly Policy without location", MeasurementResolution.Week,
             LocationResolution.None, 500, smartMeter1Id);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Raw,
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "Raw Policy", MeasurementResolution.Raw,
             LocationResolution.Continent, 5000, smartMeter1Id);
 
         SmartMeterId smartMeter2Id = new(Guid.Parse("90b05cce-119f-40c4-9b28-e1d3088a109c"));
-        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", []);
-        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy3", MeasurementResolution.Minute,
+        ConnectorSerialNumber connectorSerialNumber2 = new(Guid.Parse("f1b3b3b4-4b3b-4b3b-4b3b-4b3b4b3b4b3b"));
+        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [], connectorSerialNumber2, "publicKey2");
+        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "Minutely Policy", MeasurementResolution.Minute,
             LocationResolution.StreetName, 4000, smartMeter2Id);
 
         await Policies.AddAsync(policy);
@@ -125,7 +130,10 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 
         await Database.OpenConnectionAsync();
         const string sqlTemplate = @"
-            INSERT INTO domain.""Measurement""(""positiveActivePower"", ""positiveActiveEnergyTotal"", ""negativeActivePower"", ""negativeActiveEnergyTotal"", ""reactiveEnergyQuadrant1Total"", ""reactiveEnergyQuadrant3Total"", ""totalPower"", ""currentPhase1"", ""voltagePhase1"", ""currentPhase2"", ""voltagePhase2"", ""currentPhase3"", ""voltagePhase3"", ""uptime"", ""timestamp"", ""smartMeterId"") 
+            INSERT INTO domain.""Measurement""(""smartMeterId"", ""timestamp"", ""voltagePhase1"", ""voltagePhase2"", 
+            ""voltagePhase3"", ""currentPhase1"", ""currentPhase2"", ""currentPhase3"", ""positiveActivePower"", 
+            ""negativeActivePower"", ""positiveReactiveEnergyTotal"", ""negativeReactiveEnergyTotal"", 
+            ""positiveActiveEnergyTotal"", ""negativeActiveEnergyTotal"") 
             VALUES ({0});
         ";
 
@@ -138,22 +146,20 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         for (var timestamp = startDate; timestamp <= endDate; timestamp += interval)
         {
             var values = $@"
-                {random.Next(100, 200)}, 
-                {random.Next(1000000, 2000000)}, 
-                {random.Next(0, 10)}, 
-                {random.Next(0, 10)}, 
-                {random.Next(1000, 5000)}, 
-                {random.Next(500000, 1000000)}, 
-                {random.Next(100, 200)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
-                '{timestamp.Subtract(startDate):dd\.hh\:mm\:ss}', 
+                '{smartMeterId.Id}',                
                 '{timestamp:O}', 
-                '{smartMeterId.Id}'
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (5.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (1.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (100.0 - 80.0) + 80.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (30.0 - 20.0) + 20.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (800.0 - 700.0) + 700.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (50.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}
             ";
 
             insertStatements.Add(string.Format(sqlTemplate, values));
@@ -175,6 +181,18 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
             insertCommand.CommandText = string.Join(";", missingStatements);
             await insertCommand.ExecuteNonQueryAsync();
         }
+
+        // update views
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerMinute\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerQuarterHour\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerHour\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerDay\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerWeek\"', null, null);");
 
         await Database.CloseConnectionAsync();
     }
