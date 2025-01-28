@@ -61,7 +61,8 @@ public class MeasurementRepository(
         var query = tenantSpecificDbContext.Measurements.AsNoTracking()
             .Where(m => m.SmartMeterId.Equals(smartMeterId))
             .Where(m => startAt == null || m.Timestamp >= startAt)
-            .Where(m => endAt == null || m.Timestamp <= endAt);
+            .Where(m => endAt == null || m.Timestamp <= endAt)
+            .OrderBy(m => m.Timestamp);
 
         return (await query.ToListAsync(), await query.CountAsync());
     }
@@ -80,6 +81,7 @@ public class MeasurementRepository(
                            SELECT *
                            FROM "domain".{tableName}
                            WHERE "smartMeterId" = @smartMeterId AND (@startAt IS NULL OR "timestamp" >= @startAt) AND (@endAt IS NULL OR "timestamp" <= @endAt)
+                           ORDER BY "timestamp"
                            """;
 
         await using var command = tenantSpecificDbContext.Database.GetDbConnection().CreateCommand();
