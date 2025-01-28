@@ -14,5 +14,6 @@ public interface IPolicyListService
     Task<List<PolicyDto>> GetFilteredPoliciesAsync(decimal? maxPrice, MeasurementResolution? measurementResolution,
         LocationResolution? locationResolution);
 
-    Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId, Tenant? tenant = null);
+    Task<MeasurementListDto> GetMeasurementsByPolicyIdAsync(Guid policyId, MeasurementResolution? measurementResolution, DateTime? startAt, DateTime? endAt,
+        Tenant? tenant = null);
 }

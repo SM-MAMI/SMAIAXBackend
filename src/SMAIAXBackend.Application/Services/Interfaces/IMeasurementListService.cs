@@ -13,10 +13,11 @@ public interface IMeasurementListService
     /// <param name="measurementResolution">The resolution in which the measurements should be returned.</param>
     /// <param name="startAt">Optional timestamp filter. Data with a timestamp newer/greater than or equal to startAt will be returned.</param>
     /// <param name="endAt">Optional timestamp filter. Data with a timestamp older/smaller than or equal to endAt will be returned.</param>
+    /// <param name="tenant">Optional tenant.</param>
     /// <returns>Object with raw measurements between given limitations and amount of measurements.</returns>
     Task<MeasurementListDto> GetMeasurementsBySmartMeterAndResolutionAsync(Guid smartMeterId,
         MeasurementResolution measurementResolution,
-        DateTime? startAt, DateTime? endAt);
+        DateTime? startAt, DateTime? endAt, Tenant? tenant = null);
 
     /// <summary>
     /// Get the time-filtered measurements of a tenant by smart meter and resolution.

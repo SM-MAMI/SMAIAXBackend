@@ -213,7 +213,7 @@ public class PolicyListServiceTests
             .ReturnsAsync(measurementListDtoExpected);
 
         // When
-        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId, null, null, null);
 
         // Then
         Assert.That(measurementListActual, Is.Not.Null);
@@ -236,11 +236,11 @@ public class PolicyListServiceTests
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
         var measurementListDtoExpected = new MeasurementListDto(null, [], 5);
         _measurementListServiceMock.Setup(m => m.GetMeasurementsBySmartMeterAndResolutionAsync(smartMeterId.Id,
-                MeasurementResolution.Hour, null, (Tenant?)null))
+                MeasurementResolution.Hour, null, null, (Tenant?)null))
             .ReturnsAsync(measurementListDtoExpected);
 
         // When
-        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId, null, null, null);
 
         // Then
         Assert.That(measurementListActual, Is.Not.Null);
@@ -263,7 +263,7 @@ public class PolicyListServiceTests
         _smartMeterRepositoryMock.Setup(rep => rep.GetSmartMeterByIdAsync(smartMeterId)).ReturnsAsync(smartMeter);
 
         // When
-        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId);
+        var measurementListActual = await _policyListService.GetMeasurementsByPolicyIdAsync(policyId, null, null, null);
 
         // Then
         Assert.That(measurementListActual, Is.Not.Null);
@@ -281,7 +281,8 @@ public class PolicyListServiceTests
             .ReturnsAsync((Policy)null!);
 
         // When Then
-        Assert.ThrowsAsync<PolicyNotFoundException>(() => _policyListService.GetMeasurementsByPolicyIdAsync(policyId));
+        Assert.ThrowsAsync<PolicyNotFoundException>(() =>
+            _policyListService.GetMeasurementsByPolicyIdAsync(policyId, null, null, null));
     }
 
     [Test]
@@ -299,6 +300,6 @@ public class PolicyListServiceTests
 
         // When Then
         Assert.ThrowsAsync<SmartMeterNotFoundException>(() =>
-            _policyListService.GetMeasurementsByPolicyIdAsync(policyId));
+            _policyListService.GetMeasurementsByPolicyIdAsync(policyId, null, null, null));
     }
 }
