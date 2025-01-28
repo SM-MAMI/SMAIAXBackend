@@ -3,6 +3,8 @@
 using SMAIAXBackend.Application.DTOs;
 using SMAIAXBackend.Application.Exceptions;
 using SMAIAXBackend.Application.Services.Interfaces;
+using SMAIAXBackend.Domain.Model.Entities;
+using SMAIAXBackend.Domain.Model.Enums;
 using SMAIAXBackend.Domain.Model.ValueObjects.Ids;
 using SMAIAXBackend.Domain.Repositories;
 
@@ -42,6 +44,25 @@ public class ContractListService(
 
     public async Task<ContractDto> GetContractByIdAsync(Guid contractId)
     {
+        (ContractDto contractDto, _) = await GetContractDtoByIdWithVendorAsync(contractId);
+
+        return contractDto;
+    }
+
+    public async Task<MeasurementListDto> GetMeasurementsByContractIdAsync(Guid contractId,
+        MeasurementResolution? measurementResolution, DateTime? startAt, DateTime? endAt)
+    {
+        (ContractDto contractDto, Tenant vendorTenant) = await GetContractDtoByIdWithVendorAsync(contractId);
+
+        var measurementListDto =
+            await policyListService.GetMeasurementsByPolicyIdAsync(contractDto.Policy.Id, measurementResolution,
+                startAt, endAt, vendorTenant);
+
+        return measurementListDto;
+    }
+
+    private async Task<(ContractDto, Tenant vendorTenant)> GetContractDtoByIdWithVendorAsync(Guid contractId)
+    {
         var currentTenant = await tenantContextService.GetCurrentTenantAsync();
         var contract = await contractRepository.GetContractByIdAsync(currentTenant.Id, new ContractId(contractId));
         if (contract == null)
@@ -57,8 +78,7 @@ public class ContractListService(
         }
 
         var policyDto = await policyListService.GetPolicyByTenantAsync(vendorTenant, contract.PolicyId);
-        var measurementListDto = await policyListService.GetMeasurementsByPolicyIdAsync(policyDto.Id, vendorTenant);
 
-        return ContractDto.FromContract(contract, policyDto, measurementListDto);
+        return (ContractDto.FromContract(contract, policyDto), vendorTenant);
     }
 }

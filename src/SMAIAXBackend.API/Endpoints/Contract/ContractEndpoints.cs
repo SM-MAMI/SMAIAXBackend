@@ -30,6 +30,13 @@ public static class ContractEndpoints
             .WithName("getContractById")
             .Produces<ContractDto>(StatusCodes.Status200OK, contentType)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet("/{id:guid}/measurements", GetMeasurementsByContractEndpoint.Handle)
+            .WithName("getMeasurementsByContractId")
+            .Produces<MeasurementListDto>(StatusCodes.Status200OK, contentType)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
