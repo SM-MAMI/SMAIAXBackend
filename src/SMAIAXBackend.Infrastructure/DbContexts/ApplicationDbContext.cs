@@ -65,7 +65,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         var johnDoePasswordHash = hasher.HashPassword(johnDoeTestUser, johnDoePassword!);
         johnDoeTestUser.PasswordHash = johnDoePasswordHash;
 
-        var johnDoeTenant = Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_1_role", johnDoeTenantDatabase!);
+        var johnDoeTenant = Tenant.Create(new TenantId(Guid.Parse("4846f8c1-d322-48a3-9d5a-b86219c9e14a")),
+            "tenant_1_role", johnDoeTenantDatabase!);
         var johnDoeDomainUser = User.Create(johnDoeUserId, new Name("John", "Doe"), johnDoeUserName, johnDoeEmail,
             johnDoeTenant.Id);
 
@@ -86,7 +87,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         var janeDoePasswordHash = hasher.HashPassword(janeDoeTestUser, janeDoePassword!);
         janeDoeTestUser.PasswordHash = janeDoePasswordHash;
 
-        var janeDoeTenant = Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_2_role", janeDoeTenantDatabase!);
+        var janeDoeTenant = Tenant.Create(new TenantId(Guid.Parse("24f037f5-bcd1-4eaa-9054-d87ca14a7765")),
+            "tenant_2_role", janeDoeTenantDatabase!);
         var janeDoeDomainUser = User.Create(janeDoeUserId, new Name("Jane", "Doe"), janeDoeUserName, janeDoeEmail,
             janeDoeTenant.Id);
 
@@ -108,7 +110,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         maxMustermannTestUser.PasswordHash = maxMustermannPasswordHash;
 
         var maxMustermannTenant =
-            Tenant.Create(new TenantId(Guid.NewGuid()), "tenant_3_role", maxMustermannTenantDatabase!);
+            Tenant.Create(new TenantId(Guid.Parse("8f864f2c-5a92-4a1a-bf59-a65f2579250d")), "tenant_3_role",
+                maxMustermannTenantDatabase!);
         var maxMustermannDomainUser = User.Create(maxMustermannUserId, new Name("Max", "Mustermann"),
             maxMustermannUserName, maxMustermannEmail, maxMustermannTenant.Id);
 
