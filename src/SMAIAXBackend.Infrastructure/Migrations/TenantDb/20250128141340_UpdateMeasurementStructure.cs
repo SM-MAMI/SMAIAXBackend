@@ -12,6 +12,18 @@ namespace SMAIAXBackend.Infrastructure.Migrations.TenantDb
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Manually added drop because Views are dependent on Measurement.
+            migrationBuilder.Sql("""
+                                 DROP MATERIALIZED VIEW IF EXISTS
+                                 "domain"."MeasurementPerMinute",
+                                 "domain"."MeasurementPerQuarterHour",
+                                 "domain"."MeasurementPerHour",
+                                 "domain"."MeasurementPerHour",
+                                 "domain"."MeasurementPerDay",
+                                 "domain"."MeasurementPerWeek"
+                                 RESTRICT
+                                 """);
+            
             migrationBuilder.DropTable(
                 name: "PolicyRequest",
                 schema: "domain");
