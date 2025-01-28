@@ -1,9 +1,6 @@
 using System.Globalization;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
-using Npgsql;
 
 using SMAIAXBackend.Domain.Model.Entities;
 using SMAIAXBackend.Domain.Model.Enums;
@@ -37,7 +34,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJohnDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("070dec95-56bb-4154-a2c4-c26faf9fff4d"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-2),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             4, smartMeter1Id);
         SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
@@ -66,7 +63,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJaneDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("95cc68ed-c94e-40de-851b-b95aaacfb76c"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-1),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             2, smartMeter1Id);
         SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
@@ -95,7 +92,7 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForMaxMustermann()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("96ae137c-a687-4423-b7ff-4cb0b238bfc7"));
-        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
+        Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow.AddDays(-2),
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             6, smartMeter1Id);
         SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
@@ -178,6 +175,18 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
             insertCommand.CommandText = string.Join(";", missingStatements);
             await insertCommand.ExecuteNonQueryAsync();
         }
+
+        // update views
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerMinute\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerQuarterHour\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerHour\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerDay\"', null, null);");
+        await Database.ExecuteSqlRawAsync(
+            "CALL refresh_continuous_aggregate('\"domain\".\"MeasurementPerWeek\"', null, null);");
 
         await Database.CloseConnectionAsync();
     }
