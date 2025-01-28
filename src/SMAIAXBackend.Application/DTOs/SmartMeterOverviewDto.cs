@@ -9,7 +9,7 @@ public class SmartMeterOverviewDto(Guid id, Guid connectorSerialNumber, string n
 {
     [Required]
     public Guid Id { get; set; } = id;
-    [Required] 
+    [Required]
     public Guid ConnectorSerialNumber { get; set; } = connectorSerialNumber;
     [Required]
     public string Name { get; set; } = name;
