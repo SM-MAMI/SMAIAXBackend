@@ -37,18 +37,20 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
     public async Task SeedTestDataForJohnDoe()
     {
         SmartMeterId smartMeter1Id = new(Guid.Parse("070dec95-56bb-4154-a2c4-c26faf9fff4d"));
+        ConnectorSerialNumber connectorSerialNumber1 = new(Guid.Parse("4ae9a3e1-1426-484c-a696-c26393a5b307"));
         Metadata metadata = Metadata.Create(new MetadataId(Guid.NewGuid()), DateTime.UtcNow,
             new Location("Hochschulstraße 1", "Dornbirn", "Vorarlberg", "Österreich", Continent.Europe),
             4, smartMeter1Id);
-        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata]);
-        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "policy1", MeasurementResolution.Hour,
+        SmartMeter smartMeter1 = SmartMeter.Create(smartMeter1Id, "Smart Meter 1", [metadata], connectorSerialNumber1, "pubkey1");
+        var policy = Policy.Create(new PolicyId(Guid.NewGuid()), "Hourly Policy", MeasurementResolution.Hour,
             LocationResolution.None, 100, smartMeter1Id);
-        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy2", MeasurementResolution.Raw,
+        var policy2 = Policy.Create(new PolicyId(Guid.NewGuid()), "Raw continental Policy", MeasurementResolution.Raw,
             LocationResolution.Continent, 1999, smartMeter1Id);
 
         SmartMeterId smartMeter2Id = new(Guid.Parse("74b243fd-188e-48a0-b5d1-4916f5464b0a"));
-        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", []);
-        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "policy3", MeasurementResolution.Day,
+        ConnectorSerialNumber connectorSerialNumber2 = new(Guid.Parse("6f6d7af1-82c1-45ee-be93-34d6cd43611b"));
+        SmartMeter smartMeter2 = SmartMeter.Create(smartMeter2Id, "Smart Meter 2", [], connectorSerialNumber2, "pubkey2");
+        var policy3 = Policy.Create(new PolicyId(Guid.NewGuid()), "Daily Policy with street", MeasurementResolution.Day,
             LocationResolution.StreetName, 999, smartMeter2Id);
 
         await Policies.AddAsync(policy);

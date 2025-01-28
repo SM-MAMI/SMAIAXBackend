@@ -21,6 +21,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
             case PolicyNotFoundException:
             case SmartMeterNotFoundException:
             case DeviceConfigNotFoundException:
+            case DeviceMappingNotFoundException:
             case UserNotFoundException:
                 problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5";
                 problemDetails.Status = StatusCodes.Status404NotFound;
@@ -40,6 +41,7 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
                 break;
             case ExistingPoliciesException:
             case MetadataAlreadyExistsException:
+            case SmartMeterAlreadyAssignedException:
                 problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
                 problemDetails.Status = StatusCodes.Status409Conflict;
                 problemDetails.Title = "Conflict";
