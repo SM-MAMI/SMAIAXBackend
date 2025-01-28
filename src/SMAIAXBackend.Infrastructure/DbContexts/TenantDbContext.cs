@@ -127,7 +127,10 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
 
         await Database.OpenConnectionAsync();
         const string sqlTemplate = @"
-            INSERT INTO domain.""Measurement""(""positiveActivePower"", ""positiveActiveEnergyTotal"", ""negativeActivePower"", ""negativeActiveEnergyTotal"", ""reactiveEnergyQuadrant1Total"", ""reactiveEnergyQuadrant3Total"", ""totalPower"", ""currentPhase1"", ""voltagePhase1"", ""currentPhase2"", ""voltagePhase2"", ""currentPhase3"", ""voltagePhase3"", ""uptime"", ""timestamp"", ""smartMeterId"") 
+            INSERT INTO domain.""Measurement""(""smartMeterId"", ""timestamp"", ""voltagePhase1"", ""voltagePhase2"", 
+            ""voltagePhase3"", ""currentPhase1"", ""currentPhase2"", ""currentPhase3"", ""positiveActivePower"", 
+            ""negativeActivePower"", ""positiveReactiveEnergyTotal"", ""negativeReactiveEnergyTotal"", 
+            ""positiveActiveEnergyTotal"", ""negativeActiveEnergyTotal"") 
             VALUES ({0});
         ";
 
@@ -140,22 +143,20 @@ public class TenantDbContext(DbContextOptions<TenantDbContext> options) : DbCont
         for (var timestamp = startDate; timestamp <= endDate; timestamp += interval)
         {
             var values = $@"
-                {random.Next(100, 200)}, 
-                {random.Next(1000000, 2000000)}, 
-                {random.Next(0, 10)}, 
-                {random.Next(0, 10)}, 
-                {random.Next(1000, 5000)}, 
-                {random.Next(500000, 1000000)}, 
-                {random.Next(100, 200)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 10).ToString(CultureInfo.InvariantCulture)}, 
-                {(random.NextDouble() * 100 + 200).ToString(CultureInfo.InvariantCulture)}, 
                 '{timestamp.Subtract(startDate):dd\.hh\:mm\:ss}', 
-                '{timestamp:O}', 
-                '{smartMeterId.Id}'
+                '{smartMeterId.Id}',
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (230.0 - 229.0) + 229.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (0.1 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (5.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (1.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (100.0 - 80.0) + 80.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (30.0 - 20.0) + 20.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (800.0 - 700.0) + 700.0, 2).ToString(CultureInfo.InvariantCulture)}, 
+                {Math.Round(random.NextDouble() * (50.0 - 0.0) + 0.0, 2).ToString(CultureInfo.InvariantCulture)}
             ";
 
             insertStatements.Add(string.Format(sqlTemplate, values));
